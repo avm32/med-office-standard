@@ -47,7 +47,9 @@ ACCENTS = str.maketrans({
 def load_standard():
     try:
         with STANDARD.open(encoding="utf-8") as fh:
-            return json.load(fh)
+            std = json.load(fh)
+            resolve_shared_children(std)
+            return std
     except FileNotFoundError:
         sys.exit("error: standard.json not found next to medstd.py")
     except json.JSONDecodeError as exc:
@@ -57,6 +59,24 @@ def load_standard():
             "  (usual cause: a trailing comma, or a missing quote)"
             % (exc.lineno, exc.colno, exc.msg)
         )
+
+
+def resolve_shared_children(std):
+    """Expand "children_from": "<key>" into a real children list.
+
+    02-Incoming and 08-Outgoing both take their subfolders from the shared
+    `parties` list, so the numbering cannot drift between them - 02 is the
+    architect whichever direction the information is travelling.
+    """
+    for node in std.get("tree", []):
+        key = node.pop("children_from", None)
+        if not key:
+            continue
+        shared = std.get(key, {}).get("list")
+        if shared is None:
+            sys.exit("error: standard.json node %r references missing list %r"
+                     % (node.get("en"), key))
+        node["children"] = [dict(child) for child in shared]
 
 
 def strip_accents(text):

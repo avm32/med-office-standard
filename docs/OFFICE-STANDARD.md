@@ -36,7 +36,9 @@ Delimiter `-`, characters `A-Za-z0-9`. Status and revision are always suffixed:
     05-Geotechnical/
     06-Surveyor/
     07-Contractor/
-    08-Other/
+    08-Subcontractor/
+    09-Authority/
+    10-Other/
 03-Site_Information/
     01-Survey/
     02-Ground_Investigation/
@@ -66,10 +68,12 @@ Delimiter `-`, characters `A-Za-z0-9`. Status and revision are always suffixed:
     02-Architect/
     03-Mechanical/
     04-Electrical/
-    05-Contractor/
-    06-Subcontractor/
-    07-Authority/
-    08-Other/
+    05-Geotechnical/
+    06-Surveyor/
+    07-Contractor/
+    08-Subcontractor/
+    09-Authority/
+    10-Other/
 XX-Superseded/
 ```
 
@@ -92,7 +96,9 @@ XX-Superseded/
     05-Geotechnika/
     06-Geodezia/
     07-Kivitelezo/
-    08-Egyeb/
+    08-Alvallalkozo/
+    09-Hatosag/
+    10-Egyeb/
 03-Helyszini_Adatok/
     01-Felmeres/
     02-Talajvizsgalat/
@@ -122,10 +128,12 @@ XX-Superseded/
     02-Epitesz/
     03-Gepesz/
     04-Elektromos/
-    05-Kivitelezo/
-    06-Alvallalkozo/
-    07-Hatosag/
-    08-Egyeb/
+    05-Geotechnika/
+    06-Geodezia/
+    07-Kivitelezo/
+    08-Alvallalkozo/
+    09-Hatosag/
+    10-Egyeb/
 XX-Elavult/
 ```
 

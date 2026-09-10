@@ -99,6 +99,22 @@
     }
   },
 
+  "parties": {
+    "_note": "Other parties on the project. Used for BOTH 02-Incoming and 08-Outgoing via children_from, so the numbering can never drift between them: 02 is Architect in both directions. Not every party is used on every job; unused folders cost nothing and keep the numbering stable across projects.",
+    "list": [
+      { "num": "01", "en": "Client", "hu": "Megbizo" },
+      { "num": "02", "en": "Architect", "hu": "Epitesz" },
+      { "num": "03", "en": "Mechanical", "hu": "Gepesz" },
+      { "num": "04", "en": "Electrical", "hu": "Elektromos" },
+      { "num": "05", "en": "Geotechnical", "hu": "Geotechnika" },
+      { "num": "06", "en": "Surveyor", "hu": "Geodezia" },
+      { "num": "07", "en": "Contractor", "hu": "Kivitelezo" },
+      { "num": "08", "en": "Subcontractor", "hu": "Alvallalkozo" },
+      { "num": "09", "en": "Authority", "hu": "Hatosag" },
+      { "num": "10", "en": "Other", "hu": "Egyeb" }
+    ]
+  },
+
   "date_prefix": {
     "format": "%y%m%d",
     "_note": "Folders that are events rather than categories take a date prefix instead of a number: 260910-Design_Team_Meeting. Sorts chronologically, stays greppable."
@@ -120,16 +136,7 @@
     {
       "num": "02", "en": "Incoming", "hu": "Bejovo",
       "date_prefixed_children": true,
-      "children": [
-        { "num": "01", "en": "Client", "hu": "Megbizo" },
-        { "num": "02", "en": "Architect", "hu": "Epitesz" },
-        { "num": "03", "en": "Mechanical", "hu": "Gepesz" },
-        { "num": "04", "en": "Electrical", "hu": "Elektromos" },
-        { "num": "05", "en": "Geotechnical", "hu": "Geotechnika" },
-        { "num": "06", "en": "Surveyor", "hu": "Geodezia" },
-        { "num": "07", "en": "Contractor", "hu": "Kivitelezo" },
-        { "num": "08", "en": "Other", "hu": "Egyeb" }
-      ]
+      "children_from": "parties"
     },
     {
       "num": "03", "en": "Site_Information", "hu": "Helyszini_Adatok",
@@ -178,17 +185,7 @@
     {
       "num": "08", "en": "Outgoing", "hu": "Kimeno",
       "readme": "outgoing",
-      "_note": "Subfolders are recipients, mirroring 02-Incoming. Inside each, issues are date-prefixed events - see the outgoing README at this level; not repeated per child, same pattern as 02-Incoming.",
-      "children": [
-        { "num": "01", "en": "Client", "hu": "Megbizo" },
-        { "num": "02", "en": "Architect", "hu": "Epitesz" },
-        { "num": "03", "en": "Mechanical", "hu": "Gepesz" },
-        { "num": "04", "en": "Electrical", "hu": "Elektromos" },
-        { "num": "05", "en": "Contractor", "hu": "Kivitelezo" },
-        { "num": "06", "en": "Subcontractor", "hu": "Alvallalkozo" },
-        { "num": "07", "en": "Authority", "hu": "Hatosag" },
-        { "num": "08", "en": "Other", "hu": "Egyeb" }
-      ]
+      "children_from": "parties"
     },
     {
       "num": "XX", "en": "Superseded", "hu": "Elavult",
