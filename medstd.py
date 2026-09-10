@@ -31,6 +31,11 @@ MANAGED_SEEDS = {"CLAUDE.md", "OFFICE-STANDARD.md"}
 # Seeds written once and then left alone - these accumulate user content.
 ONCE_SEEDS = {"PROJECT.md", "DECISIONS.md", "REGISTER.csv"}
 
+# A managed seed is only ever overwritten if it carries this marker, proving the
+# tool wrote it. A hand-written CLAUDE.md is never clobbered - it is left alone
+# and the new version is dropped beside it as *.medstd-new for you to compare.
+GENERATED_MARKER = "medstd.py"
+
 ACCENTS = str.maketrans({
     "á": "a", "é": "e", "í": "i", "ó": "o", "ö": "o", "ő": "o",
     "ú": "u", "ü": "u", "ű": "u",
@@ -194,23 +199,33 @@ def write_seeds(root, ctx, dry_run=False, refresh=False):
     refresh=False : write anything missing (first run)
     refresh=True  : additionally regenerate MANAGED_SEEDS, leave ONCE_SEEDS alone
     """
-    written, skipped = [], []
+    written, skipped, diverted = [], [], []
     if not SEEDS.is_dir():
-        return written, skipped
+        return written, skipped, diverted
     for src in sorted(SEEDS.iterdir()):
         if not src.is_file():
             continue
         dest = root / src.name
         managed = src.name in MANAGED_SEEDS
-        if dest.exists() and not (refresh and managed):
-            skipped.append(dest)
-            continue
+        body = substitute(src.read_text(encoding="utf-8"), ctx)
+
+        if dest.exists():
+            if not (refresh and managed):
+                skipped.append(dest)
+                continue
+            # Refusing to overwrite a file we did not write is the whole point.
+            existing = dest.read_text(encoding="utf-8", errors="replace")
+            if GENERATED_MARKER not in existing:
+                target = dest.with_suffix(dest.suffix + ".medstd-new")
+                diverted.append(target)
+                if not dry_run:
+                    target.write_text(body, encoding="utf-8")
+                continue
+
         written.append(dest)
         if not dry_run:
-            dest.write_text(
-                substitute(src.read_text(encoding="utf-8"), ctx), encoding="utf-8"
-            )
-    return written, skipped
+            dest.write_text(body, encoding="utf-8")
+    return written, skipped, diverted
 
 
 def cmd_new(args, std):
@@ -227,7 +242,7 @@ def cmd_new(args, std):
     ctx = context_for(std, args.code, args.name, lang, args.client, args.address, args.stage)
 
     created = build_tree(root, std, lang, args.dry_run)
-    written, skipped = write_seeds(root, ctx, args.dry_run, refresh=False)
+    written, skipped, diverted = write_seeds(root, ctx, args.dry_run, refresh=False)
 
     tag = "[dry run] " if args.dry_run else ""
     print("%sproject root: %s" % (tag, root))
@@ -236,6 +251,8 @@ def cmd_new(args, std):
     print("%s  files written:   %d" % (tag, len(written)))
     if skipped:
         print("%s  left untouched:  %d" % (tag, len(skipped)))
+    for path in diverted:
+        print("%s  ! not mine, wrote alongside: %s" % (tag, path.name))
     if not args.dry_run:
         register_project(std, args.code, args.name, ctx)
         print("  registered in %s" % (HERE / "projects.csv"))
@@ -251,15 +268,23 @@ def cmd_update(args, std):
     ctx = context_for(std, code, name, lang, args.client, args.address, args.stage)
 
     created = build_tree(root, std, lang, args.dry_run)
-    written, skipped = write_seeds(root, ctx, args.dry_run, refresh=True)
+    written, skipped, diverted = write_seeds(root, ctx, args.dry_run, refresh=True)
 
     tag = "[dry run] " if args.dry_run else ""
     print("%supdated: %s (language: %s)" % (tag, root, lang))
-    print("%s  folders added:      %d" % (tag, len(created)))
+    print("%s  folders added:      %d   (nothing is ever deleted, moved or renamed)"
+          % (tag, len(created)))
     for path in created:
         print("%s    + %s" % (tag, path.relative_to(root)))
     print("%s  seeds regenerated:  %d" % (tag, len(written)))
+    for path in written:
+        print("%s    ~ %s" % (tag, path.name))
     print("%s  user files kept:    %d" % (tag, len(skipped)))
+    for path in skipped:
+        print("%s    = %s" % (tag, path.name))
+    for path in diverted:
+        print("%s  ! not written by medstd, left yours untouched and wrote: %s"
+              % (tag, path.name))
 
 
 def detect_language(root, std):

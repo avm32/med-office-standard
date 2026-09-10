@@ -1,5 +1,6 @@
-# The project register is live data, not standard. Uncomment to keep it local.
-# projects.csv
+# Project register: live data holding client names. Deliberately NOT committed,
+# so pushing this repo to a remote never publishes client information.
+projects.csv
 
 # Generated docs are committed on purpose - they are the readable standard.
 
