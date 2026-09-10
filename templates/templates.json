@@ -1,0 +1,115 @@
+{
+  "_note": "MED Word template configuration. Consumed by medtpl.py. The style definitions themselves live in master/word/styles.xml - this file holds the policy that medtpl.py enforces against them. Keys prefixed _ are comments.",
+
+  "practice": "Medek Mernoki Iroda kft",
+  "tool_version": "1.0",
+
+  "fonts": {
+    "_note": "Arial: present on every Windows and Mac, correct Hungarian diacritics, and it is what the existing muleiras already uses for headings. Frutiger LT 45 Light was inherited from the WG master and is deliberately NOT carried over - it is Linotype-licensed, absent from Medek machines, and Word would substitute it silently while every metric shifted.",
+    "body": "Arial",
+    "heading": "Arial",
+    "whitelist": ["Arial", "Calibri", "Aptos", "Times New Roman", "Courier New", "Symbol", "Wingdings"]
+  },
+
+  "language": {
+    "_note": "The WG master carried de-CH / de-DE and a de-CH themeFontLang, which would have every Hungarian document spell-checked as Swiss German.",
+    "lang": "hu-HU",
+    "theme_font_lang": "hu-HU"
+  },
+
+  "page": {
+    "_note": "A4 with a left binding margin. Hungarian permit documents are hole-punched and bound on the left; the WG master's 5.5 cm RIGHT margin is their house marginal column and is deliberately not inherited. These values match the existing Hamvas muleiras. Usable text width 16.0 cm, which finally gives tables room - the WG reference notes that tables over ~6 columns do not fit their 13.0 cm.",
+    "size": "A4",
+    "margin_top_cm": 2.5,
+    "margin_bottom_cm": 2.5,
+    "margin_left_cm": 3.0,
+    "margin_right_cm": 2.0,
+    "usable_width_cm": 16.0
+  },
+
+  "line_spacing_policy": {
+    "_note": "THE REGRESSION TEST FOR THE IMAGE-CLIPPING DEFECT. w:lineRule='exact' pins the line box, so Word clips any inline image taller than it. w:lineRule='atLeast' grows the box instead - that is the entire difference, and the WG reference gets it wrong by advising against both. medtpl check asserts that the set of paragraph styles with an effective exact rule equals exact_allowed below. A future edit that reintroduces the trap fails the build.",
+    "exact_allowed": [
+      "21-Cimsor1",
+      "22-Cimsor2",
+      "14-Abra-Tablazat-felirat",
+      "Caption",
+      "Heading1",
+      "Heading2"
+    ],
+    "_caption_note": "Caption is on this list as a consequence of deliberately retuning it to match 14 - Abra/Tablazat felirat, so that Word's own Insert > Caption produces the office look. It inherits that style's exact 160 spacing. Correct: a caption is text beneath a figure, never a container for one.",
+    "_exact_allowed_note": "Fixed line boxes are kept only where a fixed box is the typographic point and an inline image would be a user error anyway: chapter titles and the figure/table caption. Everything a user might plausibly paste a screenshot into is atLeast.",
+    "_normal_note": "Normal moves from exact 300 to atLeast 300. It renders pixel-identically for ordinary text - the natural line box for 10-12pt Arial is well under 15pt - and differs only where exact would have clipped. If a layout ever needed exact to hold a baseline grid this would break it; nothing in a muleiras needs a baseline grid, so this is a deliberate trade, recorded here rather than made silently."
+  },
+
+  "ownership": {
+    "_note": "The medstd.py MANAGED_SEEDS / GENERATED_MARKER contract, lifted from files to zip parts. build and restyle replace tool-owned parts and carry everything else through untouched, so hand-finishing in Word survives a rebuild.",
+    "tool": [
+      "word/styles.xml",
+      "word/numbering.xml",
+      "word/theme/theme1.xml",
+      "word/fontTable.xml"
+    ],
+    "tool_selective": {
+      "word/settings.xml": {
+        "_note": "Replaced, but these are preserved from the target document if present - they are Word's own bookkeeping and clobbering them is rude.",
+        "preserve": ["rsids", "proofState", "zoom", "attachedTemplate", "defaultTabStop"]
+      }
+    },
+    "user": [
+      "word/document.xml",
+      "word/header*.xml",
+      "word/footer*.xml",
+      "word/media/*",
+      "word/embeddings/*",
+      "word/comments*.xml",
+      "customXml/*",
+      "docProps/core.xml"
+    ],
+    "_user_note": "Written only when absent (first build). Never touched on rebuild. word/media/medtpl-* is the exception - that prefix is tool-owned and is the only media the tool may replace or delete."
+  },
+
+  "xml_format": {
+    "_note": "unpack pretty-prints only the parts that provably contain no text nodes - every value in them is an attribute, so reformatting cannot alter content and the git diffs are genuinely readable. Text-bearing parts are stored byte-verbatim. This is a hard rule, not a heuristic: pretty-printing a part with w:t would change what the document says.",
+    "pretty_print": [
+      "word/styles.xml",
+      "word/numbering.xml",
+      "word/settings.xml",
+      "word/fontTable.xml",
+      "word/theme/theme1.xml",
+      "[Content_Types].xml"
+    ],
+    "verbatim_note": "Everything else, notably word/document.xml, word/header*.xml and word/footer*.xml, which carry w:t and w:instrText."
+  },
+
+  "strip": {
+    "_note": "Removed during derive. image3.tiff is the WaltGalmarini wordmark - carrying another practice's trademark into a Medek template is a legal problem, not a size one. customXml holds their SharePoint content-type bindings.",
+    "parts": [
+      "word/media/image3.tiff",
+      "customXml/item1.xml", "customXml/item2.xml", "customXml/item3.xml", "customXml/item4.xml",
+      "customXml/itemProps1.xml", "customXml/itemProps2.xml", "customXml/itemProps3.xml", "customXml/itemProps4.xml",
+      "customXml/_rels/item1.xml.rels", "customXml/_rels/item2.xml.rels",
+      "customXml/_rels/item3.xml.rels", "customXml/_rels/item4.xml.rels",
+      "word/comments.xml", "word/commentsExtended.xml", "word/commentsIds.xml",
+      "word/commentsExtensible.xml", "word/people.xml"
+    ],
+    "forbidden_substrings": ["Frutiger", "de-CH", "de-DE", "ContentTypeId", "WaltGalmarini", "Walt Galmarini"]
+  },
+
+  "provenance": {
+    "_note": "Parallel to medstd.py's GENERATED_MARKER. Written into docProps/custom.xml as a custom document property. restyle on a file WITHOUT this property refuses to modify it in place and writes <name>.medtpl-new.docx alongside instead - the same divert-on-foreign-file rule that stops medstd.py clobbering a hand-written CLAUDE.md, and the single thing that makes this tool safe to point at a live project document.",
+    "property": "MEDTPL"
+  },
+
+  "layouts": {
+    "stiluskatalogus": {
+      "file": "layouts/stiluskatalogus.json",
+      "out": "MED-Stiluskatalogus.docx",
+      "_note": "One page rendering every style with its own name as the text. This is the verification instrument - it turns the manual Word pass from an hour into five minutes."
+    },
+    "statikai-muleiras": {
+      "file": "layouts/statikai-muleiras.json",
+      "out": "MED-Statikai_muleiras.dotx"
+    }
+  }
+}

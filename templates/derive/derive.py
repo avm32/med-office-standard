@@ -1,0 +1,641 @@
+#!/usr/bin/env python3
+"""One-shot derivation: WaltGalmarini master -> Medek Hungarian master.
+
+Run ONCE. Its output is templates/master/, which is thereafter the source of
+truth; this script then lies dormant. It is kept committed so the provenance of
+every style value has an answer.
+
+    python derive/derive.py                 # writes master/
+    python derive/derive.py --dry-run
+    python derive/derive.py --force         # overwrite an existing master/
+
+Uses lxml, unlike medtpl.py. That is deliberate and contained: this runs once,
+on a developer machine, while medtpl.py must still work in ten years without a
+working pip.
+
+The style parts (styles, numbering, settings, fontTable, theme) are carried over
+from WG and transformed. document.xml, the headers and the footers are generated
+fresh rather than inherited - inheriting them would drag in the WG wordmark and
+leave dangling relationships once it was stripped.
+"""
+
+import argparse
+import hashlib
+import json
+import shutil
+import sys
+import zipfile
+from pathlib import Path
+
+from lxml import etree
+
+HERE = Path(__file__).resolve().parent
+TEMPLATES = HERE.parent
+MAP_FILE = HERE / "wg_to_hu.json"
+CONFIG_FILE = TEMPLATES / "templates.json"
+MASTER = TEMPLATES / "master"
+
+W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+CT = "http://schemas.openxmlformats.org/package/2006/content-types"
+PR = "http://schemas.openxmlformats.org/package/2006/relationships"
+w = lambda tag: "{%s}%s" % (W, tag)
+r_ = lambda tag: "{%s}%s" % (R, tag)
+
+# Parts carried over from the WG master and transformed.
+CARRY = [
+    "word/styles.xml",
+    "word/numbering.xml",
+    "word/settings.xml",
+    "word/fontTable.xml",
+    "word/theme/theme1.xml",
+    "word/webSettings.xml",
+    "word/endnotes.xml",
+    "word/footnotes.xml",
+]
+
+# Every place a styleId can be referenced. Renaming is a graph edit: miss one of
+# these and Word silently drops the formatting rather than reporting an error.
+STYLE_REFS = [
+    (w("basedOn"), w("val")),
+    (w("next"), w("val")),
+    (w("link"), w("val")),
+    (w("styleLink"), w("val")),
+    (w("numStyleLink"), w("val")),
+    (w("pStyle"), w("val")),
+    (w("rStyle"), w("val")),
+    (w("tblStyle"), w("val")),
+    (w("clickAndTypeStyle"), w("val")),
+]
+
+CM = 567.0  # twips per cm
+A4_W, A4_H = 11906, 16838
+
+# Fonts that must survive the retarget. numbering.xml uses these to carry the
+# actual bullet glyphs - a blanket swap to Arial turns every bullet into a
+# letter. Discovered the hard way by the forbidden-content sweep.
+SYMBOL_FONTS = {
+    "Symbol", "Wingdings", "Wingdings 2", "Wingdings 3", "Webdings",
+    "Courier New", "Times New Roman",
+}
+
+
+def load(path):
+    with path.open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def parse(data):
+    return etree.fromstring(data)
+
+
+def serialise(el, declaration=True):
+    return etree.tostring(el, xml_declaration=declaration, encoding="UTF-8", standalone=True)
+
+
+# --------------------------------------------------------------------------
+# styles.xml
+# --------------------------------------------------------------------------
+
+# OOXML content models are strict SEQUENCES, not bags: a child in the wrong
+# position makes Word reject the whole file with "the file appears to be
+# corrupted" and no indication of which element is at fault. These are the
+# orders from ECMA-376 CT_Style and CT_PPrBase.
+STYLE_ORDER = [
+    "name", "aliases", "basedOn", "next", "link", "autoRedefine", "hidden",
+    "uiPriority", "semiHidden", "unhideWhenUsed", "qFormat", "locked",
+    "personal", "personalCompose", "personalReply", "rsid",
+    "pPr", "rPr", "tblPr", "trPr", "tcPr", "tblStylePr",
+]
+
+PPR_ORDER = [
+    "pStyle", "keepNext", "keepLines", "pageBreakBefore", "framePr",
+    "widowControl", "numPr", "suppressLineNumbers", "pBdr", "shd", "tabs",
+    "suppressAutoHyphens", "kinsoku", "wordWrap", "overflowPunct",
+    "topLinePunct", "autoSpaceDE", "autoSpaceDN", "bidi", "adjustRightInd",
+    "snapToGrid", "spacing", "ind", "contextualSpacing", "mirrorIndents",
+    "suppressOverlap", "jc", "textDirection", "textAlignment",
+    "textboxTightWrap", "outlineLvl", "divId", "cnfStyle", "rPr", "sectPr",
+    "pPrChange",
+]
+
+
+def ensure_child(parent, tag, order):
+    """Find or create a child, inserting it at its schema-defined position."""
+    found = parent.find(w(tag))
+    if found is not None:
+        return found
+    el = etree.Element(w(tag))
+    rank = order.index(tag) if tag in order else len(order)
+    for existing in parent:
+        name = etree.QName(existing).localname
+        existing_rank = order.index(name) if name in order else len(order)
+        if existing_rank > rank:
+            existing.addprevious(el)
+            return el
+    parent.append(el)
+    return el
+
+
+def set_spacing(style, **kw):
+    ppr = ensure_child(style, "pPr", STYLE_ORDER)
+    sp = ensure_child(ppr, "spacing", PPR_ORDER)
+    for key, val in kw.items():
+        if val is not None:
+            sp.set(w(key), str(val))
+
+
+def set_flag(style, tag):
+    """Add a boolean element such as <w:semiHidden/> in its correct position."""
+    ensure_child(style, tag, STYLE_ORDER)
+
+
+def set_ppr_flag(style, tag):
+    ppr = ensure_child(style, "pPr", STYLE_ORDER)
+    ensure_child(ppr, tag, PPR_ORDER)
+
+
+def set_child_val(style, tag, value):
+    ensure_child(style, tag, STYLE_ORDER).set(w("val"), value)
+
+
+def transform_styles(root, mapping, config, report):
+    styles = {s.get(w("styleId")): s for s in root.findall(w("style"))}
+    dropped = set()
+
+    # ---- drop ----
+    for sid, why in mapping["drop"].items():
+        if sid.startswith("_"):
+            continue
+        el = styles.get(sid)
+        if el is None:
+            report.append("  drop  %-34s (not present - already absent)" % sid)
+            continue
+        root.remove(el)
+        del styles[sid]
+        dropped.add(sid)
+        report.append("  drop  %-34s %s" % (sid, why))
+
+    # ---- rename (ids and display names) ----
+    rename = {k: v for k, v in mapping["rename"].items() if not k.startswith("_")}
+    idmap = {old: new["id"] for old, new in rename.items()}
+    for old, new in rename.items():
+        el = styles.get(old)
+        if el is None:
+            report.append("  WARN  rename source missing: %s" % old)
+            continue
+        el.set(w("styleId"), new["id"])
+        set_child_val(el, "name", new["name"])
+        styles[new["id"]] = styles.pop(old)
+        report.append("  ren   %-34s -> %-28s %s" % (old, new["id"], new["name"]))
+
+    # ---- rewrite every styleId reference, everywhere in this part ----
+    rewrite_refs(root, idmap)
+
+    # ---- add new styles ----
+    for spec in mapping.get("add", []):
+        el = etree.SubElement(root, w("style"))
+        el.set(w("type"), "paragraph")
+        el.set(w("customStyle"), "1")
+        el.set(w("styleId"), spec["id"])
+        set_child_val(el, "name", spec["name"])
+        if spec.get("basedOn"):
+            set_child_val(el, "basedOn", spec["basedOn"])
+        if spec.get("next"):
+            set_child_val(el, "next", spec["next"])
+        if spec.get("spacing"):
+            set_spacing(el, **spec["spacing"])
+        if spec.get("keepNext"):
+            set_ppr_flag(el, "keepNext")
+        styles[spec["id"]] = el
+        report.append("  add   %-34s %s" % (spec["id"], spec["name"]))
+
+    # ---- retune ----
+    for sid, ops in mapping["retune"].items():
+        if sid.startswith("_"):
+            continue
+        el = styles.get(sid)
+        if el is None:
+            report.append("  WARN  retune target missing: %s" % sid)
+            continue
+        bits = []
+        if "spacing" in ops:
+            kw = {k: v for k, v in ops["spacing"].items() if not k.startswith("_")}
+            set_spacing(el, **kw)
+            bits.append("spacing(%s)" % ",".join("%s=%s" % i for i in kw.items()))
+        if ops.get("keepNext"):
+            set_ppr_flag(el, "keepNext")
+            bits.append("keepNext")
+        if ops.get("next"):
+            set_child_val(el, "next", ops["next"])
+            bits.append("next=%s" % ops["next"])
+        if ops.get("semiHidden"):
+            set_flag(el, "semiHidden")
+            bits.append("semiHidden")
+        if ops.get("unhideWhenUsed"):
+            set_flag(el, "unhideWhenUsed")
+            bits.append("unhideWhenUsed")
+        if ops.get("match"):
+            src = styles.get(ops["match"])
+            if src is not None:
+                copy_formatting(src, el)
+                bits.append("formatting<-%s" % ops["match"])
+        report.append("  tune  %-34s %s" % (sid, " ".join(bits)))
+
+    # ---- global font and language ----
+    font = mapping["global"]["font"]
+    lang = mapping["global"]["lang"]
+    retarget_rfonts(root, font)
+    set_lang(root, lang)
+    report.append("  glob  font -> %s, lang -> %s (symbol fonts preserved)" % (font, lang))
+    return idmap, dropped
+
+
+def drop_style_refs(root, dropped):
+    """Remove references to styles that no longer exist.
+
+    numbering.xml holds w:pStyle back-links inside abstractNum/lvl - they are
+    what make Word auto-number a paragraph the moment it gets a heading style.
+    Dropping a style without clearing its back-link leaves numbering.xml
+    pointing at nothing.
+    """
+    removed = 0
+    for tag, _ in STYLE_REFS:
+        for el in list(root.iter(tag)):
+            if el.get(w("val")) in dropped:
+                el.getparent().remove(el)
+                removed += 1
+    return removed
+
+
+def retarget_rfonts(root, font):
+    """Point body fonts at `font`, leaving symbol fonts alone.
+
+    numbering.xml carries bullet glyphs in Symbol/Wingdings/Courier New; swapping
+    those to Arial silently turns every bullet into a letter.
+    """
+    changed = 0
+    for rfonts in root.iter(w("rFonts")):
+        current = rfonts.get(w("ascii")) or rfonts.get(w("hAnsi"))
+        if current in SYMBOL_FONTS:
+            continue
+        for attr in ("ascii", "hAnsi", "cs", "eastAsia"):
+            if rfonts.get(w(attr)) is not None and rfonts.get(w(attr)) not in SYMBOL_FONTS:
+                rfonts.set(w(attr), font)
+        for attr in ("asciiTheme", "hAnsiTheme", "cstheme", "eastAsiaTheme"):
+            if rfonts.get(w(attr)) is not None:
+                del rfonts.attrib[w(attr)]
+        if current is not None:
+            rfonts.set(w("ascii"), font)
+            rfonts.set(w("hAnsi"), font)
+            changed += 1
+    return changed
+
+
+def set_lang(root, lang):
+    for el in root.iter(w("lang")):
+        el.set(w("val"), lang)
+        if el.get(w("eastAsia")) is not None:
+            el.set(w("eastAsia"), lang)
+    for el in root.iter(w("themeFontLang")):
+        for attr in ("val", "eastAsia", "bidi"):
+            if el.get(w(attr)) is not None:
+                el.set(w(attr), lang)
+    # activeWritingStyle is per-machine spell-check bookkeeping, not template
+    # content. Drop it rather than translate it.
+    for el in list(root.iter(w("activeWritingStyle"))):
+        el.getparent().remove(el)
+
+
+def copy_formatting(src, dest):
+    """Replace dest's pPr/rPr with copies of src's - used for Caption, whose
+    built-in NAME cannot change but whose formatting can."""
+    import copy as _copy
+    for tag in ("pPr", "rPr"):
+        old = dest.find(w(tag))
+        if old is not None:
+            dest.remove(old)
+        new = src.find(w(tag))
+        if new is not None:
+            placeholder = ensure_child(dest, tag, STYLE_ORDER)
+            dest.replace(placeholder, _copy.deepcopy(new))
+
+
+def rewrite_refs(root, idmap):
+    """Rewrite every styleId reference in a part. This is the step that makes a
+    rename a graph edit rather than a string replace."""
+    n = 0
+    for tag, attr in STYLE_REFS:
+        for el in root.iter(tag):
+            val = el.get(attr)
+            if val in idmap:
+                el.set(attr, idmap[val])
+                n += 1
+    return n
+
+
+# --------------------------------------------------------------------------
+# generated parts
+# --------------------------------------------------------------------------
+
+def gen_document(config):
+    page = config["page"]
+    tw = lambda cm: str(int(round(cm * CM)))
+    return ("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="%s" xmlns:r="%s">
+  <w:body>
+    <w:p><w:pPr><w:pStyle w:val="11-Szoveg"/></w:pPr></w:p>
+    <w:sectPr>
+      <w:headerReference r:id="rId10" w:type="default"/>
+      <w:footerReference r:id="rId11" w:type="default"/>
+      <w:pgSz w:w="%d" w:h="%d"/>
+      <w:pgMar w:top="%s" w:right="%s" w:bottom="%s" w:left="%s"
+               w:header="708" w:footer="708" w:gutter="0"/>
+      <w:cols w:space="708"/>
+      <w:docGrid w:linePitch="360"/>
+    </w:sectPr>
+  </w:body>
+</w:document>
+""" % (W, R, A4_W, A4_H,
+       tw(page["margin_top_cm"]), tw(page["margin_right_cm"]),
+       tw(page["margin_bottom_cm"]), tw(page["margin_left_cm"]))).encode("utf-8")
+
+
+def gen_header(config):
+    return ("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:hdr xmlns:w="%s" xmlns:r="%s">
+  <w:p><w:pPr><w:pStyle w:val="Header"/></w:pPr></w:p>
+</w:hdr>
+""" % (W, R)).encode("utf-8")
+
+
+def gen_footer(config):
+    """Footer with real PAGE / SECTIONPAGES fields.
+
+    SECTIONPAGES rather than NUMPAGES because the body section restarts its
+    numbering at 1; NUMPAGES would count the cover and contents too. STYLEREF is
+    deliberately avoided - it prints a Hungarian error string into the footer the
+    moment a referenced style is missing.
+    """
+    return ("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:ftr xmlns:w="%s" xmlns:r="%s">
+  <w:p>
+    <w:pPr><w:pStyle w:val="Footer"/><w:jc w:val="right"/></w:pPr>
+    <w:r><w:fldChar w:fldCharType="begin"/></w:r>
+    <w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>
+    <w:r><w:fldChar w:fldCharType="separate"/></w:r>
+    <w:r><w:t>1</w:t></w:r>
+    <w:r><w:fldChar w:fldCharType="end"/></w:r>
+    <w:r><w:t xml:space="preserve"> / </w:t></w:r>
+    <w:r><w:fldChar w:fldCharType="begin"/></w:r>
+    <w:r><w:instrText xml:space="preserve"> SECTIONPAGES </w:instrText></w:r>
+    <w:r><w:fldChar w:fldCharType="separate"/></w:r>
+    <w:r><w:t>1</w:t></w:r>
+    <w:r><w:fldChar w:fldCharType="end"/></w:r>
+  </w:p>
+</w:ftr>
+""" % (W, R)).encode("utf-8")
+
+
+DOC_RELS = [
+    ("rId1",  "styles",      "styles.xml"),
+    ("rId2",  "numbering",   "numbering.xml"),
+    ("rId3",  "settings",    "settings.xml"),
+    ("rId4",  "webSettings", "webSettings.xml"),
+    ("rId5",  "fontTable",   "fontTable.xml"),
+    ("rId6",  "theme",       "theme/theme1.xml"),
+    ("rId7",  "endnotes",    "endnotes.xml"),
+    ("rId8",  "footnotes",   "footnotes.xml"),
+    ("rId10", "header",      "header1.xml"),
+    ("rId11", "footer",      "footer1.xml"),
+]
+
+
+def gen_document_rels():
+    base = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
+    rels = "".join(
+        '  <Relationship Id="%s" Type="%s%s" Target="%s"/>\n' % (rid, base, typ, target)
+        for rid, typ, target in DOC_RELS)
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<Relationships xmlns="%s">\n%s</Relationships>\n' % (PR, rels)).encode("utf-8")
+
+
+def gen_root_rels():
+    base = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
+    pkg = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/"
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<Relationships xmlns="%s">\n'
+            '  <Relationship Id="rId1" Type="%sofficeDocument" Target="word/document.xml"/>\n'
+            '  <Relationship Id="rId2" Type="%score-properties" Target="docProps/core.xml"/>\n'
+            '  <Relationship Id="rId3" Type="%sextended-properties" Target="docProps/app.xml"/>\n'
+            '</Relationships>\n' % (PR, base, pkg, base)).encode("utf-8")
+
+
+def gen_content_types(parts, as_template=False):
+    main = ("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml"
+            if as_template else
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml")
+    o = "application/vnd.openxmlformats-officedocument.wordprocessingml."
+    kinds = {
+        "word/document.xml": main,
+        "word/styles.xml": o + "styles+xml",
+        "word/numbering.xml": o + "numbering+xml",
+        "word/settings.xml": o + "settings+xml",
+        "word/webSettings.xml": o + "webSettings+xml",
+        "word/fontTable.xml": o + "fontTable+xml",
+        "word/endnotes.xml": o + "endnotes+xml",
+        "word/footnotes.xml": o + "footnotes+xml",
+        "word/header1.xml": o + "header+xml",
+        "word/footer1.xml": o + "footer+xml",
+        "word/theme/theme1.xml": "application/vnd.openxmlformats-officedocument.theme+xml",
+        "docProps/core.xml": "application/vnd.openxmlformats-package.core-properties+xml",
+        "docProps/app.xml": "application/vnd.openxmlformats-officedocument.extended-properties+xml",
+        "docProps/custom.xml": "application/vnd.openxmlformats-officedocument.custom-properties+xml",
+    }
+    lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+             '<Types xmlns="%s">' % CT,
+             '  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+             '  <Default Extension="xml" ContentType="application/xml"/>',
+             '  <Default Extension="png" ContentType="image/png"/>',
+             '  <Default Extension="jpeg" ContentType="image/jpeg"/>']
+    for part in parts:
+        if part in kinds:
+            lines.append('  <Override PartName="/%s" ContentType="%s"/>' % (part, kinds[part]))
+    lines.append('</Types>')
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def gen_core_props():
+    dc = "http://purl.org/dc/elements/1.1/"
+    cp = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<cp:coreProperties xmlns:cp="%s" xmlns:dc="%s">\n'
+            '  <dc:title></dc:title>\n'
+            '  <dc:creator>Medek Mernoki Iroda kft</dc:creator>\n'
+            '  <dc:language>hu-HU</dc:language>\n'
+            '</cp:coreProperties>\n' % (cp, dc)).encode("utf-8")
+
+
+def gen_app_props():
+    ep = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<Properties xmlns="%s">\n'
+            '  <Application>Microsoft Office Word</Application>\n'
+            '  <Company>Medek Mernoki Iroda kft</Company>\n'
+            '</Properties>\n' % ep).encode("utf-8")
+
+
+# --------------------------------------------------------------------------
+
+def pretty(data, config):
+    """Delegate to medtpl's pretty-printer.
+
+    Deliberately not a second implementation: if derive and medtpl indented
+    differently, `medtpl roundtrip` would fail on a master that is actually fine,
+    and the assertion that makes the exploded tree trustworthy would be useless.
+    One printer, one output.
+    """
+    sys.path.insert(0, str(TEMPLATES))
+    from medtpl import pretty_xml, has_text_content
+    if has_text_content(data):
+        raise SystemExit("refusing to pretty-print a part with text content")
+    return pretty_xml(data)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--force", action="store_true", help="overwrite an existing master/")
+    args = ap.parse_args()
+
+    mapping = load(MAP_FILE)
+    config = load(CONFIG_FILE)
+
+    if MASTER.exists() and any(MASTER.iterdir()) and not args.force and not args.dry_run:
+        sys.exit("error: %s already exists and is not empty.\n"
+                 "  derive is a ONE-SHOT step - master/ is the source of truth once written.\n"
+                 "  Use --force only if you really mean to discard it." % MASTER)
+
+    src = Path(mapping["source"])
+    if not src.is_file():
+        sys.exit("error: WG master not found at %s" % src)
+
+    zf = zipfile.ZipFile(src)
+    have = set(zf.namelist())
+    report = []
+    out = {}
+
+    # ---- carried, transformed parts ----
+    idmap = {}
+    styles_root = parse(zf.read("word/styles.xml"))
+    report.append("styles.xml:")
+    idmap, dropped = transform_styles(styles_root, mapping, config, report)
+    out["word/styles.xml"] = serialise(styles_root)
+
+    font = mapping["global"]["font"]
+    lang = mapping["global"]["lang"]
+    for part in CARRY:
+        if part == "word/styles.xml" or part not in have:
+            continue
+        root = parse(zf.read(part))
+        refs = rewrite_refs(root, idmap)
+        gone = drop_style_refs(root, dropped)
+        fonts = retarget_rfonts(root, font)
+        set_lang(root, lang)
+        if part in ("word/fontTable.xml", "word/theme/theme1.xml"):
+            retarget_fonts(root, font)
+        out[part] = serialise(root)
+        notes = []
+        if refs:
+            notes.append("%d style refs" % refs)
+        if fonts:
+            notes.append("%d font refs" % fonts)
+        if gone:
+            notes.append("cleared %d refs to dropped styles" % gone)
+        if notes:
+            report.append("%s: rewrote %s" % (part, ", ".join(notes)))
+
+    # ---- generated parts ----
+    out["word/document.xml"] = gen_document(config)
+    out["word/header1.xml"] = gen_header(config)
+    out["word/footer1.xml"] = gen_footer(config)
+    out["word/_rels/document.xml.rels"] = gen_document_rels()
+    out["_rels/.rels"] = gen_root_rels()
+    out["docProps/core.xml"] = gen_core_props()
+    out["docProps/app.xml"] = gen_app_props()
+    # sorted(set(...)): a duplicate PartName override is invalid OOXML and Word
+    # rejects the package outright.
+    out["[Content_Types].xml"] = gen_content_types(sorted(set(out.keys())))
+    report.append("generated: document.xml, header1.xml, footer1.xml, rels, content-types, docProps")
+    report.append("  (not inherited from WG - their document and headers embed the WG wordmark)")
+
+    # ---- forbidden-content sweep ----
+    problems = []
+    for part, data in out.items():
+        text = data.decode("utf-8", "replace")
+        for bad in config["strip"]["forbidden_substrings"]:
+            if bad in text:
+                problems.append("%s contains %r" % (part, bad))
+
+    print("\n".join(report))
+    print()
+    if problems:
+        print("FORBIDDEN CONTENT STILL PRESENT:")
+        for p in problems:
+            print("  ! " + p)
+    else:
+        print("forbidden-content sweep: clean (no Frutiger, de-CH/de-DE, WG marks)")
+
+    dropped = sorted(have - set(out.keys()))
+    print("\ndropped %d source parts, including the WG wordmark and customXml bindings" % len(dropped))
+
+    if args.dry_run:
+        print("\n[dry run] would write %d parts to %s" % (len(out), MASTER))
+        return 0
+
+    # ---- write the exploded tree ----
+    # Clear the contents rather than the directory itself: OneDrive keeps a
+    # handle on synced folders and rmtree of the root fails with WinError 5.
+    if MASTER.exists():
+        for child in sorted(MASTER.rglob("*"), key=lambda p: -len(p.parts)):
+            try:
+                child.unlink() if child.is_file() else child.rmdir()
+            except OSError:
+                pass
+    MASTER.mkdir(parents=True, exist_ok=True)
+    manifest = {"_note": "Written by derive.py. Hashes let medtpl check detect hand edits.",
+                "source": str(src), "parts": {}}
+    pretty_set = set(config["xml_format"]["pretty_print"])
+    for part in sorted(out):
+        data = out[part]
+        if part in pretty_set:
+            data = pretty(data, config)
+        dest = MASTER / part
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+        manifest["parts"][part] = {
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "bytes": len(data),
+            "format": "pretty" if part in pretty_set else "verbatim",
+        }
+    (MASTER / "MANIFEST.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    print("\nwrote %d parts to %s" % (len(out), MASTER))
+    print("next: review `git diff` of master/word/styles.xml - that review is the")
+    print("      whole reason this architecture was chosen.")
+    return 0
+
+
+def retarget_fonts(root, font):
+    for el in root.iter():
+        tag = etree.QName(el).localname
+        if tag in ("latin", "ea", "cs") and el.get("typeface"):
+            el.set("typeface", font)
+        if tag == "font" and el.get(w("name")):
+            el.set(w("name"), font)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

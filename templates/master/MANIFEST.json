@@ -1,0 +1,86 @@
+{
+  "_note": "Written by derive.py. Hashes let medtpl check detect hand edits.",
+  "source": "C:\\Users\\PC\\Documents\\Projects\\XX_WG\\00-Vorlagen\\_vorlage-master.docx",
+  "parts": {
+    "[Content_Types].xml": {
+      "sha256": "e4d7e14380def0782eebe8dfbc3a3780eb6a03d668d5739e929cced979445cda",
+      "bytes": 2119,
+      "format": "pretty"
+    },
+    "_rels/.rels": {
+      "sha256": "f86f1893aecb510b25f41025ced61dd4a921d4188a6056e2f3fb17af8545e8e6",
+      "bytes": 600,
+      "format": "verbatim"
+    },
+    "docProps/app.xml": {
+      "sha256": "1d5e3b799fa54569d14012539a0e72f36d77b2427d29ebd439962d6b00225d6f",
+      "bytes": 261,
+      "format": "verbatim"
+    },
+    "docProps/core.xml": {
+      "sha256": "007afa1a0663f7dcb9d8d11e4a7aebaa9e3b7d026e4555c8ac201b90ff860e7b",
+      "bytes": 334,
+      "format": "verbatim"
+    },
+    "word/_rels/document.xml.rels": {
+      "sha256": "352fc17d091b8dbefb6589307e2d525514cdf8137d631a8b8dd70f2b94f0df6a",
+      "bytes": 1503,
+      "format": "verbatim"
+    },
+    "word/document.xml": {
+      "sha256": "4671b87f746e6249d1d422f70956634a66f891718d47922b25d3fc49530c1f21",
+      "bytes": 700,
+      "format": "verbatim"
+    },
+    "word/endnotes.xml": {
+      "sha256": "419b849e423524ad729a82fcb506e92ab135f4c5e3274b7168ba8efade81fbd7",
+      "bytes": 3011,
+      "format": "verbatim"
+    },
+    "word/fontTable.xml": {
+      "sha256": "af51e3b0a372f852829b493dafc85e2d9afb3995c4f2245d12e3d8b1de3ff09e",
+      "bytes": 5431,
+      "format": "pretty"
+    },
+    "word/footer1.xml": {
+      "sha256": "8a6868a9f317baaaac3b01b911e5c0649346134bab330c25ace78a872cc13b4e",
+      "bytes": 863,
+      "format": "verbatim"
+    },
+    "word/footnotes.xml": {
+      "sha256": "d5688e8edaa3d84b885fb8a39ea66ea253afba6e51d707a954c68e7a458a2bf8",
+      "bytes": 3017,
+      "format": "verbatim"
+    },
+    "word/header1.xml": {
+      "sha256": "fd6a188ab2cbaf0442152ab8a8dd64818c669ebc3853efb0b44fda9e3e829be8",
+      "bytes": 277,
+      "format": "verbatim"
+    },
+    "word/numbering.xml": {
+      "sha256": "c347a6a462b20bf2dea04c153e03a461363b0c051987f7c6b347bae922706bf1",
+      "bytes": 96170,
+      "format": "pretty"
+    },
+    "word/settings.xml": {
+      "sha256": "31ee559c5eb009c133d16ed4a3cd6774b8d3726187dd6f67ceb97efddbc239a0",
+      "bytes": 24444,
+      "format": "pretty"
+    },
+    "word/styles.xml": {
+      "sha256": "c0f4505b224c2de9be60fbd95ca0e62a0a43ee96db1e6391e514a6500b4a4d96",
+      "bytes": 60872,
+      "format": "pretty"
+    },
+    "word/theme/theme1.xml": {
+      "sha256": "7c8f1d1356e76924b1f1e90a10e8d48d4bb607e2007e33241b67cd5f0b45af8d",
+      "bytes": 10097,
+      "format": "pretty"
+    },
+    "word/webSettings.xml": {
+      "sha256": "c392f30f70ccb1ddd5125762bbd7efe84c1fa9291cbd29b2c8c149bb10533ea9",
+      "bytes": 1082,
+      "format": "verbatim"
+    }
+  }
+}

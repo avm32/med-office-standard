@@ -1,0 +1,121 @@
+{
+  "_note": "One-shot transform: the WaltGalmarini master -> the Medek Hungarian master. Run once by derive.py; its output is templates/master/, which is thereafter the source of truth. Kept committed so 'where did 15 - Abra's spacing come from?' has an answer.",
+
+  "source": "C:/Users/PC/Documents/Projects/XX_WG/00-Vorlagen/_vorlage-master.docx",
+  "_source_note": "Read-only. Never modified. Belongs to that job, not to this repo.",
+
+  "_styleid_note": "Note the source styleIds have already lost their umlauts - Word strips non-ASCII when it generates a styleId, which is why '21 - Uberschrift 1' is stored as '21-berschrift1'. The new ids follow the same ASCII rule deliberately: w:styleId is internal and never displayed, w:name carries the Hungarian.",
+
+  "rename": {
+    "10-Standard":             { "id": "10-Alap",                    "name": "10 - Alap" },
+    "11-Text":                 { "id": "11-Szoveg",                  "name": "11 - Szöveg" },
+    "12-Infotext":             { "id": "12-Infoszoveg",              "name": "12 - Infoszöveg" },
+    "13-Hinweis":              { "id": "13-Megjegyzes",              "name": "13 - Megjegyzés" },
+    "14-AbbildungTabellenbez": { "id": "14-Abra-Tablazat-felirat",   "name": "14 - Ábra/Táblázat felirat" },
+    "15-Abbildung":            { "id": "15-Abra",                    "name": "15 - Ábra" },
+    "16-Tabellentitel":        { "id": "16-Tablazatcim",             "name": "16 - Táblázatcím" },
+    "18-Tabellentext":         { "id": "18-Tablazatszoveg",          "name": "18 - Táblázatszöveg" },
+    "21-berschrift1":          { "id": "21-Cimsor1",                 "name": "21 - Címsor 1" },
+    "22-berschrift2":          { "id": "22-Cimsor2",                 "name": "22 - Címsor 2" },
+    "23-berschrift3ohneNr":    { "id": "23-Cimsor3-szam-nelkul",     "name": "23 - Címsor 3 szám nélkül" },
+    "24-berschrift3mitNr":     { "id": "24-Cimsor3-szamozott",       "name": "24 - Címsor 3 számozott" },
+    "27-Anhang":               { "id": "27-Melleklet",               "name": "27 - Melléklet" },
+    "31-AufzhlungPunkt":       { "id": "31-Felsorolas-pont",         "name": "31 - Felsorolás pont" },
+    "32-AufzhlungStrich1":     { "id": "32-Felsorolas-gondolatjel",  "name": "32 - Felsorolás gondolatjel" },
+    "33-AufzhlungStrich2":     { "id": "33-Felsorolas-gondolatjel-2","name": "33 - Felsorolás gondolatjel 2" },
+    "34-AufzhlungNummer":      { "id": "34-Felsorolas-szamozott",    "name": "34 - Felsorolás számozott" },
+    "35-AufzhlungTabelle":     { "id": "35-Felsorolas-tablazatban",  "name": "35 - Felsorolás táblázatban" },
+    "41-Auftraggeber":         { "id": "41-Megbizo",                 "name": "41 - Megbízó" },
+    "42-Auftragsname":         { "id": "42-Megbizas-neve",           "name": "42 - Megbízás neve" },
+    "43-Adresse":              { "id": "43-Cim",                     "name": "43 - Cím" },
+    "45-Dokumententitel":      { "id": "45-Dokumentum-cime",         "name": "45 - Dokumentum címe" },
+    "46-Dokunummer":           { "id": "46-Dokumentumszam",          "name": "46 - Dokumentumszám" },
+    "47-Datum":                { "id": "47-Datum",                   "name": "47 - Dátum" },
+    "50-Inhalt":               { "id": "50-Tartalomjegyzek",         "name": "50 - Tartalomjegyzék" },
+    "52-InfoTitelblatt":       { "id": "52-Cimlap-info",             "name": "52 - Címlap info" }
+  },
+
+  "_prefix_note": "The numbered prefix is load-bearing, not decoration. On a Hungarian Word, the built-in heading displays as 'Címsor 1'; a custom style also named 'Címsor 1' would collide and you would get two styles fighting in the gallery. '21 - Címsor 1' cannot collide in any UI language. It also sorts the gallery usefully, which is why WG adopted it.",
+
+  "drop": {
+    "Formatvorlage1":                  "accreted junk - an unnamed variant of the table title",
+    "Formatvorlage21-berschrift114Pt": "accreted junk - a one-off 14pt heading variant",
+    "Texteinger1":                     "accreted junk - stray indented text",
+    "AbbildungWG":                     "table style carrying the WG name; replaced by Table Grid",
+    "25-berschrift1Aktennotiz":        "file-note heading variant - not needed for a muleiras",
+    "13-HinweisAufzhlung":             "bulleted note - 32/33 already cover second-level bullets"
+  },
+  "_drop_note": "Verified safe: nothing in the source is basedOn any of these, so no basedOn chain is broken by removing them.",
+
+  "add": [
+    {
+      "id": "48-Alairas",
+      "name": "48 - Aláírás",
+      "basedOn": "11-Szoveg",
+      "next": "11-Szoveg",
+      "keepNext": true,
+      "spacing": { "before": 480, "line": 260, "lineRule": "atLeast" },
+      "_note": "Designer signature block on the closing page. keepNext holds the name, qualification and chamber number together across a page break."
+    },
+    {
+      "id": "49-Nyilatkozat",
+      "name": "49 - Nyilatkozat",
+      "basedOn": "11-Szoveg",
+      "next": "49-Nyilatkozat",
+      "spacing": { "before": 120, "line": 280, "lineRule": "atLeast" },
+      "_note": "Statutory declaration paragraphs. Slightly looser leading than body text because it is read as a legal statement, not scanned."
+    }
+  ],
+
+  "retune": {
+    "Normal": {
+      "spacing": { "lineRule": "atLeast" },
+      "_why": "THE IMAGE FIX. Was exact 300 = a line box pinned at 15pt, which clips any taller inline image. atLeast at the same 300 renders identically for ordinary text and grows only where exact would have cut."
+    },
+    "12-Infoszoveg":             { "spacing": { "lineRule": "atLeast" }, "_why": "image safety - a user may paste into an info paragraph" },
+    "31-Felsorolas-pont":        { "spacing": { "lineRule": "atLeast" }, "_why": "image safety - a user may paste into a bullet" },
+    "32-Felsorolas-gondolatjel": { "spacing": { "lineRule": "atLeast" }, "_why": "image safety" },
+    "35-Felsorolas-tablazatban": { "spacing": { "lineRule": "atLeast" }, "_why": "image safety" },
+
+    "21-Cimsor1": {
+      "spacing": { "after": 240 },
+      "_why": "was after=3000 twips = 150pt of white space after every chapter title. Almost certainly a WG house layout choice tied to their marginal column; absurd in an A4 permit document."
+    },
+    "Heading1": {
+      "spacing": { "after": 240 },
+      "semiHidden": true,
+      "unhideWhenUsed": true,
+      "_why": "same 3000-twip problem. Hidden from the gallery so 21 - Címsor 1 is the one people pick, but kept defined because TOCHeading is basedOn it and Word expects built-in headings to exist."
+    },
+    "Heading2": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading3": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading4": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading5": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading6": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading7": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading8": { "semiHidden": true, "unhideWhenUsed": true },
+    "Heading9": { "semiHidden": true, "unhideWhenUsed": true },
+
+    "50-Tartalomjegyzek": {
+      "spacing": { "after": 360 },
+      "_why": "was after=3000, same problem"
+    },
+
+    "15-Abra": {
+      "keepNext": true,
+      "next": "14-Abra-Tablazat-felirat",
+      "_why": "keepNext holds the picture on the same page as its caption. next means pressing Enter after a picture lands you in the caption style - WG's next is body text, which is why every caption there is a manual style pick."
+    },
+
+    "Caption": {
+      "match": "14-Abra-Tablazat-felirat",
+      "_why": "Word's own Insert > Caption applies the built-in Caption style. Retuning it to match the office caption means that route gives the office look instead of stock Word blue. The built-in NAME cannot be changed - Word identifies it by the canonical English 'caption' - but its formatting can."
+    }
+  },
+
+  "global": {
+    "font": "Arial",
+    "lang": "hu-HU",
+    "_note": "Applied to docDefaults, theme1.xml minor/major fonts, fontTable.xml, and every explicit w:rFonts / w:lang in styles.xml."
+  }
+}
