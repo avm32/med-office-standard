@@ -177,9 +177,18 @@
     },
     {
       "num": "08", "en": "Outgoing", "hu": "Kimeno",
-      "date_prefixed_children": true,
       "readme": "outgoing",
-      "children": []
+      "_note": "Subfolders are recipients, mirroring 02-Incoming. Inside each, issues are date-prefixed events - see the outgoing README at this level; not repeated per child, same pattern as 02-Incoming.",
+      "children": [
+        { "num": "01", "en": "Client", "hu": "Megbizo" },
+        { "num": "02", "en": "Architect", "hu": "Epitesz" },
+        { "num": "03", "en": "Mechanical", "hu": "Gepesz" },
+        { "num": "04", "en": "Electrical", "hu": "Elektromos" },
+        { "num": "05", "en": "Contractor", "hu": "Kivitelezo" },
+        { "num": "06", "en": "Subcontractor", "hu": "Alvallalkozo" },
+        { "num": "07", "en": "Authority", "hu": "Hatosag" },
+        { "num": "08", "en": "Other", "hu": "Egyeb" }
+      ]
     },
     {
       "num": "XX", "en": "Superseded", "hu": "Elavult",

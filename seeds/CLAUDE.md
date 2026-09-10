@@ -94,7 +94,7 @@ codes that appear there. If a project needs a new code, add it to
 | Analysis, geometry, BIM, exports | `05-Models` |
 | Live drawing files and sketches | `06-Drawings` |
 | Reports, specifications, schedules | `07-Documents` |
-| Frozen issued copies, one folder per issue | `08-Outgoing/YYMMDD-<status>-<purpose>/` |
+| Frozen issued copies, one folder per issue | `08-Outgoing/<recipient>/YYMMDD-<status>-<purpose>/` |
 | Anything replaced | `XX-Superseded/YYMMDD-Reason/` |
 
 Calculations are filed **by subject, not by work stage**. A foundation
@@ -110,10 +110,13 @@ originating party, propose `02-Incoming/<party>/YYMMDD-Description/`, state the
 reasoning in one line, and **wait for confirmation before moving anything.**
 Then summarise what arrived and what it changes for the structure.
 
-**Issuing.** Create `08-Outgoing/YYMMDD-<status>-<purpose>/`, copy in the
-issued files renamed to the full container ID with status and revision suffix,
-append a row per file to `REGISTER.csv`, and draft a transmittal listing
-document number, title, revision, status and purpose.
+**Issuing.** Identify the recipient, create
+`08-Outgoing/<recipient>/YYMMDD-<status>-<purpose>/`, copy in the issued files
+renamed to the full container ID with status and revision suffix, append a row
+per file to `REGISTER.csv`, and draft a transmittal listing document number,
+title, revision, status and purpose. If an issue goes to more than one
+recipient, file it under the primary recipient and note the others in
+`REGISTER.csv` rather than duplicating the files.
 
 **Register.** `REGISTER.csv` columns are fixed:
 `date,container_id,title,form,discipline,status,revision,issued_to,purpose`.

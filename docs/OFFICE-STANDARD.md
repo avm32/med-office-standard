@@ -62,6 +62,14 @@ Delimiter `-`, characters `A-Za-z0-9`. Status and revision are always suffixed:
     02-Specifications/
     03-Schedules/
 08-Outgoing/
+    01-Client/
+    02-Architect/
+    03-Mechanical/
+    04-Electrical/
+    05-Contractor/
+    06-Subcontractor/
+    07-Authority/
+    08-Other/
 XX-Superseded/
 ```
 
@@ -110,6 +118,14 @@ XX-Superseded/
     02-Muszaki_Leiras/
     03-Kimutatasok/
 08-Kimeno/
+    01-Megbizo/
+    02-Epitesz/
+    03-Gepesz/
+    04-Elektromos/
+    05-Kivitelezo/
+    06-Alvallalkozo/
+    07-Hatosag/
+    08-Egyeb/
 XX-Elavult/
 ```
 
