@@ -72,9 +72,19 @@ convention, where things go, and the jurisdiction hierarchy. Supporting files:
 |------|----------|---------|
 | `CLAUDE.md` | generated | agent instructions — role, hard rules, standing tasks |
 | `OFFICE-STANDARD.md` | generated | the code tables, so the agent needs no lookup |
+| `.claude/commands/` | generated | project slash commands — `/decision` |
 | `PROJECT.md` | yours | client, address, stage, design basis, team, project codes |
 | `DECISIONS.md` | yours | append-only decision log — the project wiki |
 | `REGISTER.csv` | yours | issue register, one row per file per issue |
+
+**`/decision`** writes a formatted entry into `DECISIONS.md`, inferring the
+reasoning from the session and asking for it when it can't. Nothing watches your
+files — the log only captures what passes through a session, so use the command
+when something is settled. Edit the command at
+`seeds/dotclaude/commands/decision.md`, not in a project.
+
+To migrate a project that has already started, see
+[`docs/MIGRATION.md`](docs/MIGRATION.md).
 
 The technical knowledge base stays central at `03-Resources-Wiki/` — it is not
 copied per project.

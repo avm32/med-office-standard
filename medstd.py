@@ -202,12 +202,24 @@ def write_seeds(root, ctx, dry_run=False, refresh=False):
     written, skipped, diverted = [], [], []
     if not SEEDS.is_dir():
         return written, skipped, diverted
-    for src in sorted(SEEDS.iterdir()):
-        if not src.is_file():
-            continue
-        dest = root / src.name
-        managed = src.name in MANAGED_SEEDS
+
+    # seeds/dotclaude/** -> <project>/.claude/**  (slash commands for the agent;
+    # kept un-hidden in the repo so it is visible when browsing and copying)
+    sources = [(p, p.relative_to(SEEDS)) for p in sorted(SEEDS.iterdir()) if p.is_file()]
+    dotclaude = SEEDS / "dotclaude"
+    if dotclaude.is_dir():
+        for path in sorted(dotclaude.rglob("*")):
+            if path.is_file():
+                rel = Path(".claude") / path.relative_to(dotclaude)
+                sources.append((path, rel))
+
+    for src, rel in sources:
+        dest = root / rel
+        # .claude commands are tool-managed like the generated seeds
+        managed = src.name in MANAGED_SEEDS or rel.parts[0] == ".claude"
         body = substitute(src.read_text(encoding="utf-8"), ctx)
+        if not dry_run:
+            dest.parent.mkdir(parents=True, exist_ok=True)
 
         if dest.exists():
             if not (refresh and managed):
