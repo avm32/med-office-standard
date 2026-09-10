@@ -8,6 +8,15 @@
   "delimiter": "-",
   "projects_root": "02-Projects",
 
+  "notes": {
+    "_note": "Project knowledge notes live in the Obsidian vault, NOT in the project folder. Bulk project data (models, drawings, incoming) stays wherever projects_root points - Documents today, a server later. Only these few hundred KB of markdown live in the vault, which is what lets a single Obsidian query span every project and the knowledge base at once. When projects move to the server, projects_root changes and this does not.",
+    "root": "../../03-Resources-Wiki/_KNOWLEDGE/Projects",
+    "link_name": "00-Notes",
+    "_link_note": "Best-effort directory junction created inside the project folder pointing at that project's notes, so the agent (and you) can reach them without leaving the project. Junctions need a local target and no elevation; if creation fails the tool says so and CLAUDE.md still carries the absolute path.",
+    "files": ["PROJECT.md", "DECISIONS.md", "ASSUMPTIONS.md", "RFI.md", "REGISTER.csv"],
+    "_files_note": "Written as <code>-<NAME> so wikilinks are unambiguous across projects: [[26030-ASSUMPTIONS]], not a dozen files called ASSUMPTIONS."
+  },
+
   "project_code": {
     "pattern": "YYNNN",
     "_note": "Two-digit year + three-digit sequential. 26014 = 14th job started in 2026. Self-dating, sortable, 5 characters, fits the Project field of the container ID."

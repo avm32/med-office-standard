@@ -1,3 +1,10 @@
+---
+type: project-decisions
+project: "{{PROJECT_CODE}}"
+project_name: "{{PROJECT_NAME}}"
+tags: [project, decisions]
+---
+
 # {{PROJECT_CODE}} {{PROJECT_NAME}} — decision log
 
 > The project wiki. Append-only, **newest first**. This file is yours —
@@ -17,6 +24,11 @@ Format:
 - **Basis:** source, clause, email, meeting
 - **Affects:** which drawings, calcs or parties
 ```
+
+Link out where it helps. `[[EC7_1_BS_EN_1997]]` or `[[Punching_Shear]]`
+reaches the knowledge base, and the backlink means that wiki page then shows
+every project that leaned on it — which is the whole reason these notes live
+in the vault rather than in the project folder.
 
 ---
 

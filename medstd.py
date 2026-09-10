@@ -26,10 +26,11 @@ HERE = Path(__file__).resolve().parent
 STANDARD = HERE / "standard.json"
 SEEDS = HERE / "seeds"
 
-# Seeds regenerated on every `update` - these are standard-derived, not user content.
+# seeds/project/** and seeds/dotclaude/** go to the project folder; these are
+# tool-generated and regenerated on every update.
 MANAGED_SEEDS = {"CLAUDE.md", "OFFICE-STANDARD.md"}
-# Seeds written once and then left alone - these accumulate user content.
-ONCE_SEEDS = {"PROJECT.md", "DECISIONS.md", "REGISTER.csv"}
+# seeds/notes/** go to the Obsidian vault and accumulate user content, so they
+# are written once and then never touched again.
 
 # A managed seed is only ever overwritten if it carries this marker, proving the
 # tool wrote it. A hand-written CLAUDE.md is never clobbered - it is left alone
@@ -195,6 +196,35 @@ def build_tree(root, std, lang, dry_run=False):
     return created
 
 
+def notes_dir_for(std, code, name):
+    """Where this project's markdown notes live inside the Obsidian vault."""
+    root = Path(std["notes"]["root"])
+    if not root.is_absolute():
+        root = HERE / root
+    return (root / ("%s-%s" % (code, slugify(name)))).resolve()
+
+
+def link_notes(project_root, notes_dir, std, dry_run=False):
+    """Best-effort directory junction from the project folder to its notes.
+
+    A junction needs a local target and no elevation, so this normally works
+    today. It may fail once projects live on a server share - that is not
+    fatal, because CLAUDE.md carries the absolute path either way.
+    """
+    link = project_root / std["notes"]["link_name"]
+    if link.exists() or link.is_symlink():
+        return None
+    if dry_run:
+        return link
+    import subprocess
+    try:
+        subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(notes_dir)],
+                       check=True, capture_output=True)
+        return link
+    except Exception:
+        return False
+
+
 def context_for(std, code, name, lang, client, address, stage):
     today = _dt.date.today()
     return {
@@ -211,6 +241,7 @@ def context_for(std, code, name, lang, client, address, stage):
         "DATE_SHORT": today.strftime(std["date_prefix"]["format"]),
         "EXAMPLE_ID": "%s-%s-ZZ-00-D-S-0100-S3-P01" % (code, std["originator"]),
         "OFFICE_STANDARD_TABLES": render_tables(std, lang),
+        "NOTES_LINK": std["notes"]["link_name"],
     }
 
 
@@ -230,20 +261,38 @@ def write_seeds(root, ctx, dry_run=False, refresh=False):
     if not SEEDS.is_dir():
         return written, skipped, diverted
 
+    sources = []
+
+    # seeds/project/** -> the project folder (server, eventually)
+    project_seeds = SEEDS / "project"
+    if project_seeds.is_dir():
+        for path in sorted(project_seeds.rglob("*")):
+            if path.is_file():
+                sources.append((path, root / path.relative_to(project_seeds)))
+
     # seeds/dotclaude/** -> <project>/.claude/**  (slash commands for the agent;
     # kept un-hidden in the repo so it is visible when browsing and copying)
-    sources = [(p, p.relative_to(SEEDS)) for p in sorted(SEEDS.iterdir()) if p.is_file()]
     dotclaude = SEEDS / "dotclaude"
     if dotclaude.is_dir():
         for path in sorted(dotclaude.rglob("*")):
             if path.is_file():
-                rel = Path(".claude") / path.relative_to(dotclaude)
-                sources.append((path, rel))
+                sources.append((path, root / ".claude" / path.relative_to(dotclaude)))
 
-    for src, rel in sources:
-        dest = root / rel
-        # .claude commands are tool-managed like the generated seeds
-        managed = src.name in MANAGED_SEEDS or rel.parts[0] == ".claude"
+    # seeds/notes/** -> the Obsidian vault, prefixed with the project code so
+    # wikilinks stay unambiguous: [[26030-ASSUMPTIONS]], not one of six files
+    # all called ASSUMPTIONS.
+    notes_seeds = SEEDS / "notes"
+    notes_dir = ctx.get("_NOTES_DIR")
+    if notes_seeds.is_dir() and notes_dir:
+        for path in sorted(notes_seeds.iterdir()):
+            if path.is_file():
+                name = "%s-%s" % (ctx["PROJECT_CODE"], path.name)
+                sources.append((path, Path(notes_dir) / name))
+
+    for src, dest in sources:
+        # Anything the tool generates is refreshed; notes accumulate your
+        # content and are written once.
+        managed = src.name in MANAGED_SEEDS or ".claude" in dest.parts
         body = substitute(src.read_text(encoding="utf-8"), ctx)
         if not dry_run:
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -279,15 +328,26 @@ def cmd_new(args, std):
         print("project folder already exists: %s" % root)
         print("running update instead (idempotent)")
     ctx = context_for(std, args.code, args.name, lang, args.client, args.address, args.stage)
+    notes_dir = notes_dir_for(std, args.code, args.name)
+    ctx["_NOTES_DIR"] = notes_dir
+    ctx["PROJECT_PATH"] = str(root)
+    ctx["NOTES_PATH"] = str(notes_dir)
 
     created = build_tree(root, std, lang, args.dry_run)
     written, skipped, diverted = write_seeds(root, ctx, args.dry_run, refresh=False)
+    link = link_notes(root, notes_dir, std, args.dry_run)
 
     tag = "[dry run] " if args.dry_run else ""
     print("%sproject root: %s" % (tag, root))
     print("%s  language: %s" % (tag, lang))
     print("%s  folders created: %d" % (tag, len(created)))
     print("%s  files written:   %d" % (tag, len(written)))
+    print("%s  notes (vault):   %s" % (tag, notes_dir))
+    if link is False:
+        print("%s  ! could not create the %s junction - CLAUDE.md still has the path"
+              % (tag, std["notes"]["link_name"]))
+    elif link:
+        print("%s  notes junction:  %s" % (tag, std["notes"]["link_name"]))
     if skipped:
         print("%s  left untouched:  %d" % (tag, len(skipped)))
     for path in diverted:
@@ -305,9 +365,14 @@ def cmd_update(args, std):
     lang = args.lang or detect_language(root, std) or std["default_language"]
     code, name = read_project_facts(root, std)
     ctx = context_for(std, code, name, lang, args.client, args.address, args.stage)
+    notes_dir = notes_dir_for(std, code, name)
+    ctx["_NOTES_DIR"] = notes_dir
+    ctx["PROJECT_PATH"] = str(root)
+    ctx["NOTES_PATH"] = str(notes_dir)
 
     created = build_tree(root, std, lang, args.dry_run)
     written, skipped, diverted = write_seeds(root, ctx, args.dry_run, refresh=True)
+    link = link_notes(root, notes_dir, std, args.dry_run)
 
     tag = "[dry run] " if args.dry_run else ""
     print("%supdated: %s (language: %s)" % (tag, root, lang))
@@ -324,6 +389,12 @@ def cmd_update(args, std):
     for path in diverted:
         print("%s  ! not written by medstd, left yours untouched and wrote: %s"
               % (tag, path.name))
+    print("%s  notes (vault):      %s" % (tag, notes_dir))
+    if link is False:
+        print("%s  ! could not create the %s junction - CLAUDE.md still has the path"
+              % (tag, std["notes"]["link_name"]))
+    elif link:
+        print("%s  notes junction:     %s" % (tag, std["notes"]["link_name"]))
 
 
 def detect_language(root, std):

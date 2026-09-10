@@ -1,7 +1,30 @@
+---
+type: project
+code: "{{PROJECT_CODE}}"
+name: "{{PROJECT_NAME}}"
+client: "{{CLIENT}}"
+address: "{{ADDRESS}}"
+status: live
+stage: "{{STAGE}}"
+language: {{LANG}}
+originator: {{ORIGINATOR}}
+national_annex: HU
+consequence_class: CC2
+opened: {{DATE}}
+files: "{{PROJECT_PATH}}"
+tags: [project]
+---
+
 # {{PROJECT_CODE}} — {{PROJECT_NAME}}
 
 > Project facts. **This file is yours** — `medstd.py update` never overwrites it.
 > Fill it in at project start; the agent reads it first.
+>
+> Companions: [[{{PROJECT_CODE}}-ASSUMPTIONS|assumptions]] · [[{{PROJECT_CODE}}-DECISIONS|decisions]] · [[{{PROJECT_CODE}}-RFI|queries]]
+>
+> Project files live at `{{PROJECT_PATH}}` — this note deliberately does not.
+> Keeping it in the wiki vault is what lets one Obsidian query span every
+> project and the knowledge base at once.
 
 | | |
 |---|---|
@@ -32,8 +55,9 @@ _What we are appointed to do, and explicitly what we are not._
 | **Ground conditions** | _TBC — see 03-Site_Information_ |
 | **Assumed bearing capacity** | _TBC_ |
 
-> Anything left as _TBC_ is an open assumption. The agent should flag it when
-> it becomes load-bearing on a calculation.
+> Anything left as _TBC_ belongs in [[{{PROJECT_CODE}}-ASSUMPTIONS|ASSUMPTIONS]]
+> as a tracked line, not just as a gap here. The agent should flag it when it
+> becomes load-bearing on a calculation.
 
 ## Project team
 

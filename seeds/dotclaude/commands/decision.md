@@ -2,13 +2,13 @@
 description: Log a decision to DECISIONS.md
 ---
 
-Log a decision to `DECISIONS.md` at the project root.
+Log a decision to `{{NOTES_LINK}}/{{PROJECT_CODE}}-DECISIONS.md`.
 
 What was decided: $ARGUMENTS
 
 Steps:
 
-1. Read `DECISIONS.md`. If the same decision is already logged, update that
+1. Read `{{NOTES_LINK}}/{{PROJECT_CODE}}-DECISIONS.md`. If the same decision is already logged, update that
    entry rather than adding a duplicate — say which entry you updated.
 2. Work out the four fields below from `$ARGUMENTS` plus the current session.
    You have the conversation in front of you: pull the reasoning, the source
@@ -32,6 +32,10 @@ Format exactly:
 ```
 
 Use today's date. Keep the title short enough to scan in a list.
+
+Where the decision rests on a code clause or a concept that has a page in
+the knowledge base, link it as `[[EC7_1_BS_EN_1997]]` or `[[Punching_Shear]]`.
+The backlink is what makes that wiki page show every project that used it.
 
 Then show the entry you wrote, and nothing else — no preamble, no summary of
 the file.
