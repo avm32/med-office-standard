@@ -1,0 +1,16 @@
+# The project register is live data, not standard. Uncomment to keep it local.
+# projects.csv
+
+# Generated docs are committed on purpose - they are the readable standard.
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+__pycache__/
+*.pyc
+.venv/
+.idea/
+.vscode/

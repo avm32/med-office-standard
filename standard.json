@@ -1,0 +1,191 @@
+{
+  "_note": "MED office standard - single source of truth. Edited by hand; consumed by medstd.py. JSON (not YAML) so the tool needs no third-party packages and still runs in ten years. Keys prefixed _ are comments.",
+
+  "practice": "Medek Mernoki Iroda kft",
+  "originator": "MED",
+  "default_language": "en",
+  "languages": ["en", "hu"],
+  "delimiter": "-",
+  "projects_root": "02-Projects",
+
+  "project_code": {
+    "pattern": "YYNNN",
+    "_note": "Two-digit year + three-digit sequential. 26014 = 14th job started in 2026. Self-dating, sortable, 5 characters, fits the Project field of the container ID."
+  },
+
+  "container_id": {
+    "_note": "ISO 19650-2 NA (2021 corrigendum) field order. Status and revision are ALWAYS suffixed because OneDrive holds no metadata - see docs.",
+    "fields": ["project", "originator", "functional", "spatial", "form", "discipline", "number"],
+    "export_suffix": ["status", "revision"],
+    "number_length": 4,
+    "charset": "A-Za-z0-9",
+    "example": "26014-MED-ZZ-02-D-S-0104-S3-P04.pdf"
+  },
+
+  "codes": {
+    "form": {
+      "_note": "ISO 19650-2 NA.3.6, per BS ISO 29845. Single character. Do not re-add the withdrawn BS 1192 two-letter Type codes (DR, M3, CA...).",
+      "D": { "en": "Drawing", "hu": "Terv" },
+      "G": { "en": "Diagram", "hu": "Diagram" },
+      "I": { "en": "Image", "hu": "Kep" },
+      "L": { "en": "List / table / schedule", "hu": "Lista / tablazat / kimutatas" },
+      "M": { "en": "Model", "hu": "Modell" },
+      "T": { "en": "Textual (report, spec, note)", "hu": "Szoveges (jelentes, leiras, feljegyzes)" },
+      "V": { "en": "Video / audio", "hu": "Video / hang" }
+    },
+
+    "discipline": {
+      "_note": "ISO 19650-2 NA.3.7. Subset actually used by this practice; full list is in the standard.",
+      "S": { "en": "Structural engineering", "hu": "Tartoszerkezet" },
+      "C": { "en": "Civil engineering", "hu": "Melyepites" },
+      "A": { "en": "Architecture", "hu": "Epiteszet" },
+      "G": { "en": "Ground engineering", "hu": "Geotechnika" },
+      "M": { "en": "Mechanical engineering", "hu": "Gepeszet" },
+      "E": { "en": "Electrical engineering", "hu": "Elektromos" },
+      "K": { "en": "Client", "hu": "Megbizo" },
+      "X": { "en": "Non-discipline specific", "hu": "Nem szakagi" },
+      "Z": { "en": "Multiple disciplines", "hu": "Tobb szakag" }
+    },
+
+    "status": {
+      "_note": "ISO 19650-2 NA.4.2 Table NA.2, trimmed to what a small practice needs. S6/S7/D1-D4/CR were deleted by the 2021 corrigendum; B is deprecated - do not use it.",
+      "S0": { "en": "Work in progress", "hu": "Munkapeldany", "revision": "P##.##" },
+      "S2": { "en": "Suitable for information", "hu": "Tajekoztatasra", "revision": "P##" },
+      "S3": { "en": "Suitable for review and comment", "hu": "Velemenyezesre", "revision": "P##" },
+      "S4": { "en": "Suitable for review and authorization", "hu": "Jovahagyasra", "revision": "P##" },
+      "A1": { "en": "Authorized and accepted", "hu": "Jovahagyva", "revision": "C##" }
+    },
+
+    "revision": {
+      "_note": "NA.4.3. Initial revision is P01.01. Inside WIP increment the version suffix; drop it on issue; C on contract.",
+      "initial": "P01.01",
+      "wip": "P##.##",
+      "preliminary": "P##",
+      "contractual": "C##"
+    },
+
+    "spatial": {
+      "_note": "NA.3.5. Project-specific - these are the practice defaults. The old fixed BS 1192 level codes are gone from the standard; these are ours by choice.",
+      "ZZ": { "en": "Multiple levels", "hu": "Tobb szint" },
+      "XX": { "en": "No level applicable", "hu": "Nem ertelmezett" },
+      "B1": { "en": "Basement 1", "hu": "Pince 1" },
+      "00": { "en": "Ground floor", "hu": "Foldszint" },
+      "01": { "en": "Level 1", "hu": "1. emelet" },
+      "02": { "en": "Level 2", "hu": "2. emelet" },
+      "RF": { "en": "Roof", "hu": "Tetö" }
+    },
+
+    "functional": {
+      "_note": "NA.3.4. Project-specific. Defaults for a building project; a bridge or civils job needs its own set.",
+      "ZZ": { "en": "Multiple subdivisions", "hu": "Tobb reszegyseg" },
+      "XX": { "en": "No subdivision applicable", "hu": "Nem ertelmezett" },
+      "SB": { "en": "Substructure", "hu": "Alapozas" },
+      "SS": { "en": "Superstructure", "hu": "Felepitmeny" },
+      "EN": { "en": "Envelope", "hu": "Burkolat" },
+      "EX": { "en": "External works", "hu": "Kulso munkak" }
+    },
+
+    "drawing_series": {
+      "_note": "Adapted from the Price & Myers office standard - the one part of it that is independent of BS 1192 vs ISO 19650. Levels step by 10 so ground floor is always ..00.",
+      "0000": { "en": "Existing / survey", "hu": "Meglevo / felmeres" },
+      "1000": { "en": "Proposed general arrangements", "hu": "Tervezett alaprajzok" },
+      "2000": { "en": "Sections and elevations", "hu": "Metszetek es homlokzatok" },
+      "3000": { "en": "Details", "hu": "Reszletek" },
+      "4000": { "en": "Demolition", "hu": "Bontas" },
+      "5000": { "en": "Reinforcement", "hu": "Vasalas" },
+      "6000": { "en": "Drainage", "hu": "Vizelvezetes" },
+      "7000": { "en": "External works", "hu": "Kulso munkak" },
+      "8000": { "en": "Temporary works", "hu": "Ideiglenes szerkezetek" }
+    }
+  },
+
+  "date_prefix": {
+    "format": "%y%m%d",
+    "_note": "Folders that are events rather than categories take a date prefix instead of a number: 260910-Design_Team_Meeting. Sorts chronologically, stays greppable."
+  },
+
+  "tree": [
+    {
+      "num": "01", "en": "Admin", "hu": "Adminisztracio",
+      "children": [
+        { "num": "01", "en": "Appointment", "hu": "Megbizas" },
+        { "num": "02", "en": "Fee_Invoicing", "hu": "Dij_Szamlazas" },
+        { "num": "03", "en": "Programme", "hu": "Utemterv" },
+        { "num": "04", "en": "Correspondence", "hu": "Levelezes" },
+        { "num": "05", "en": "Meetings", "hu": "Egyeztetesek", "date_prefixed": true },
+        { "num": "06", "en": "Health_Safety", "hu": "Munkavedelem" },
+        { "num": "07", "en": "Authority", "hu": "Hatosagi" }
+      ]
+    },
+    {
+      "num": "02", "en": "Incoming", "hu": "Bejovo",
+      "date_prefixed_children": true,
+      "children": [
+        { "num": "01", "en": "Client", "hu": "Megbizo" },
+        { "num": "02", "en": "Architect", "hu": "Epitesz" },
+        { "num": "03", "en": "Mechanical", "hu": "Gepesz" },
+        { "num": "04", "en": "Electrical", "hu": "Elektromos" },
+        { "num": "05", "en": "Geotechnical", "hu": "Geotechnika" },
+        { "num": "06", "en": "Surveyor", "hu": "Geodezia" },
+        { "num": "07", "en": "Contractor", "hu": "Kivitelezo" },
+        { "num": "08", "en": "Other", "hu": "Egyeb" }
+      ]
+    },
+    {
+      "num": "03", "en": "Site_Information", "hu": "Helyszini_Adatok",
+      "children": [
+        { "num": "01", "en": "Survey", "hu": "Felmeres" },
+        { "num": "02", "en": "Ground_Investigation", "hu": "Talajvizsgalat" },
+        { "num": "03", "en": "Existing_Drawings", "hu": "Meglevo_Tervek" },
+        { "num": "04", "en": "Photos", "hu": "Fotok" }
+      ]
+    },
+    {
+      "num": "04", "en": "Calculations", "hu": "Szamitasok",
+      "children": [
+        { "num": "01", "en": "Loading", "hu": "Terhek" },
+        { "num": "02", "en": "Foundations", "hu": "Alapozas" },
+        { "num": "03", "en": "Vertical_Structure", "hu": "Fuggoleges_Szerkezet" },
+        { "num": "04", "en": "Horizontal_Structure", "hu": "Vizszintes_Szerkezet" },
+        { "num": "05", "en": "Stability", "hu": "Stabilitas" },
+        { "num": "06", "en": "Connections", "hu": "Csomopontok" }
+      ]
+    },
+    {
+      "num": "05", "en": "Models", "hu": "Modellek",
+      "children": [
+        { "num": "01", "en": "Analysis", "hu": "Statikai_Modell" },
+        { "num": "02", "en": "Geometry", "hu": "Geometria" },
+        { "num": "03", "en": "BIM", "hu": "BIM" },
+        { "num": "04", "en": "Exports", "hu": "Exportok" }
+      ]
+    },
+    {
+      "num": "06", "en": "Drawings", "hu": "Tervek",
+      "children": [
+        { "num": "01", "en": "Working", "hu": "Munka" },
+        { "num": "02", "en": "Sketches", "hu": "Vazlatok" }
+      ]
+    },
+    {
+      "num": "07", "en": "Documents", "hu": "Dokumentumok",
+      "children": [
+        { "num": "01", "en": "Reports", "hu": "Jelentesek" },
+        { "num": "02", "en": "Specifications", "hu": "Muszaki_Leiras" },
+        { "num": "03", "en": "Schedules", "hu": "Kimutatasok" }
+      ]
+    },
+    {
+      "num": "08", "en": "Outgoing", "hu": "Kimeno",
+      "date_prefixed_children": true,
+      "readme": "outgoing",
+      "children": []
+    },
+    {
+      "num": "XX", "en": "Superseded", "hu": "Elavult",
+      "date_prefixed_children": true,
+      "readme": "superseded",
+      "children": []
+    }
+  ]
+}
