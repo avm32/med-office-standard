@@ -116,7 +116,9 @@ def table(spec):
            '<w:tblGrid>%s</w:tblGrid>'
            % "".join('<w:gridCol w:w="%d"/>' % x for x in widths)]
 
-    HEADER_SHADE = "EDEDED"   # faint grey, still legible when photocopied
+    # White: the rule under the header carries the separation on its own, and a
+    # grey band prints as a muddy grey on office printers.
+    HEADER_SHADE = spec.get("header_shade", "FFFFFF")
 
     def emit_row(cells, style_name, bold, is_header):
         trpr = "<w:trPr><w:tblHeader/></w:trPr>" if is_header else ""
@@ -238,6 +240,18 @@ def render_block(block, ctx):
         return page_break()
     if "table" in block:
         return table(block["table"])
+    if "signature" in block:
+        # A signature image is personal, so it is never bundled with the shared
+        # template - it is pulled from assets/ only when one is present for the
+        # named designer, and falls back to a ruled line otherwise.
+        rel = ctx.get("signature_rel")
+        if rel:
+            return para(block.get("style", "48-Alairas"),
+                        picture(rel, ctx.get("signature_w_cm", 4.0),
+                                ctx.get("signature_h_cm", 1.6),
+                                "Alairas", ctx.next_id()))
+        return para(block.get("style", "48-Alairas"),
+                    run("………………………………………"))
     if "image" in block:
         return para(block.get("style", "15-Abra"),
                     picture(ctx["logo_rel"], block.get("width_cm", 8),

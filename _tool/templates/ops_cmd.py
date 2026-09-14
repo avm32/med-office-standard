@@ -421,6 +421,12 @@ def cmd_new(args, config, medtpl):
         "DATE_HU": "%d. %s %d." % (today.year, hu_months[today.month - 1], today.day),
         "REVISION": args.revision or "S3-P01",
         "ARCHITECT": facts.get("ARCHITECT", facts.get("ÉPÍTÉSZ", "TBC")),
+        # assets/signature-<initials>.png, if one exists for this designer
+        "SIGNATURE_ASSET": (args.signature or
+                            "signature-%s.png" % "".join(
+                                w[0] for w in (args.designer or
+                                               facts.get("DESIGNER", "")).split()
+                                if w and w[0].isalpha())[:3].lower()),
         "BUILDING_TYPE": facts.get("BUILDING_TYPE", "TBC"),
         # TBC must stay shouting - a lowercased "tbc" reads like a real value
         "BUILDING_TYPE_LOWER": (lambda v: v if v == "TBC" else v.lower())(

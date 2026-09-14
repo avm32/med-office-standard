@@ -125,7 +125,7 @@
         { "style": "49-Nyilatkozat", "text": "Tervező felelősen nyilatkozik, hogy a betervezett építési termékek, szerkezeti megoldások rendelkeznek megfelelőségi igazolással, illetve teljesítménynyilatkozattal." },
         { "style": "47-Datum", "docprop": "MED_Datum" },
         { "empty": 1 },
-        { "style": "48-Alairas", "text": "………………………………………" },
+        { "signature": true, "style": "48-Alairas" },
         { "style": "48-Alairas", "docprop": "MED_Tervezo" },
         { "style": "48-Alairas", "text": "tervező" },
 

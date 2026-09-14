@@ -58,6 +58,26 @@ an unconfirmed belief.
 6. **Flag, don't resolve, contradictions** between incoming documents. State
    both and say they conflict.
 
+## Deleting — hard rules
+
+These exist because an agent deleted an 11.8 MB reference document from a live
+project folder by globbing `*.docx` in a folder it had assumed was its own.
+
+1. **Never use a wildcard or glob in a delete.** Enumerate every path in full.
+2. **Only delete a file you created in this session**, and only by its exact,
+   complete filename.
+3. **List the target before deleting**, and show what matched. Deleting without
+   having looked is the failure — not deleting the wrong thing.
+4. **A delete is its own command.** Never chain it with `&&` or `;`, and never
+   silence it with `2>/dev/null`.
+5. **`rm -rf` on any directory inside a project folder: ask first, always.** A
+   directory may hold files you have never seen.
+6. **Before writing into a folder you did not create, list it.** An existing
+   folder is someone else's, whatever its name suggests. Choosing a destination
+   name that already exists does not make its contents yours.
+7. **Prefer moving to `XX-Elavult/` over deleting.** That is the office
+   standard, and it applies to you too.
+
 ## Jurisdiction
 
 Codes for this project are recorded in `PROJECT.md`. When citing Eurocode

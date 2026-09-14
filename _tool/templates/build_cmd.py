@@ -226,6 +226,17 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
         docprops[key] = render.substitute(str(spec), ctx)
     ctx["docprops"] = docprops
 
+    # Optional signature image, per designer. Never shipped with the template:
+    # a signature that travels with a shared file is a signature anyone can use.
+    sig_name = (tokens or {}).get("SIGNATURE_ASSET") if tokens else None
+    if sig_name:
+        sig = here / "assets" / sig_name
+        if sig.is_file():
+            media = "word/media/medtpl-signature" + sig.suffix.lower()
+            parts[media] = sig.read_bytes()
+            ctx["signature_rel"] = "rId30"
+            rels.append(("rId30", "image", media.split("word/", 1)[1]))
+
     if kept:
         parts.update(kept)
     else:

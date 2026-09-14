@@ -641,6 +641,7 @@ def main(argv=None):
     sp.add_argument("--revision")
     sp.add_argument("--description", help="human-readable suffix after the ID; "
                                           "pass \"\" for none")
+    sp.add_argument("--signature", help="signature image in assets/ to embed")
     sp.add_argument("--force", action="store_true")
     sp.set_defaults(func=ops("cmd_new"))
 
