@@ -58,6 +58,15 @@
       "_note": "Designer signature block on the closing page. keepNext holds the name, qualification and chamber number together across a page break."
     },
     {
+      "id": "28-Melleklet-alcim",
+      "name": "28 - Melléklet alcím",
+      "basedOn": "22-Cimsor2",
+      "next": "11-Szoveg",
+      "outlineLvl": 1,
+      "spacing": { "before": 240, "after": 120, "line": 280, "lineRule": "atLeast" },
+      "_note": "Second level inside an appendix - A1.1, A1.2. Numbering comes from the appendix list, not from the chapter list, so it restarts per appendix."
+    },
+    {
       "id": "17-Tablazat-felirat",
       "name": "17 - Táblázat felirat",
       "basedOn": "14-Abra-felirat",
@@ -110,6 +119,8 @@
 
     "27-Melleklet": {
       "pageBreakBefore": true,
+      "outlineLvl": 0,
+      "_outline_why": "Was outlineLvl 3, below the range the TOC field asks for, so the appendices never appeared in the contents at all. They are top-level sections: level 0, with their subheadings at level 1.",
       "_why": "Appendices start on a new page, like chapter headings. WG's appendix style did not force a break because their appendices were a separate document."
     },
 
@@ -129,6 +140,15 @@
     "_note": "Style-linked automatic caption numbering. A w:pStyle back-link inside the numbering level means that simply APPLYING the style numbers the paragraph - no Insert > Caption dialog, no per-document setup. Hungarian convention puts the number first: '1. ábra:', not 'Ábra 1'.",
     "14-Abra-felirat":      { "numId": 90, "abstractNumId": 90, "lvlText": "%1. ábra:" },
     "17-Tablazat-felirat":  { "numId": 91, "abstractNumId": 91, "lvlText": "%1. táblázat:" }
+  },
+
+  "appendix_numbering": {
+    "_note": "Appendices number as A1, A2 and their subheadings as A1.1, A1.2. numFmt matters as much as lvlText: the inherited level used lowerLetter, so the text said A%1.%2 while Word rendered A1.a. Targets the abstractNum that already backs 27-Melleklet rather than adding a new one, so the existing indents and tabs are kept.",
+    "anchor_style": "27-Melleklet",
+    "levels": [
+      { "ilvl": 0, "lvlText": "A%1", "numFmt": "decimal", "pStyle": "27-Melleklet" },
+      { "ilvl": 1, "lvlText": "A%1.%2", "numFmt": "decimal", "pStyle": "28-Melleklet-alcim", "start": 1 }
+    ]
   },
 
   "numbering_text": {

@@ -1275,7 +1275,7 @@
       </w:tabs>
       <w:spacing w:after="200"/>
       <w:ind w:left="794" w:hanging="794"/>
-      <w:outlineLvl w:val="3"/>
+      <w:outlineLvl w:val="0"/>
     </w:pPr>
   </w:style>
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="24-Cimsor3-szamozott">
@@ -1442,6 +1442,19 @@
     <w:pPr>
       <w:keepNext/>
       <w:spacing w:before="480" w:line="260" w:lineRule="atLeast"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:type="paragraph" w:customStyle="1" w:styleId="28-Melleklet-alcim">
+    <w:name w:val="28 - Melléklet alcím"/>
+    <w:basedOn w:val="22-Cimsor2"/>
+    <w:next w:val="11-Szoveg"/>
+    <w:pPr>
+      <w:numPr>
+        <w:ilvl w:val="1"/>
+        <w:numId w:val="18"/>
+      </w:numPr>
+      <w:spacing w:before="240" w:after="120" w:line="280" w:lineRule="atLeast"/>
+      <w:outlineLvl w:val="1"/>
     </w:pPr>
   </w:style>
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="17-Tablazat-felirat">

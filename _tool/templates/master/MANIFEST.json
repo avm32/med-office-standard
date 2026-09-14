@@ -63,8 +63,8 @@
       "format": "verbatim"
     },
     "word/numbering.xml": {
-      "sha256": "ec9360a6541f9e6c324abd398afbc1a1ae051dc4372650e1ed06e63cc70806d0",
-      "bytes": 97072,
+      "sha256": "7e099fb163b338dda3050cdd97e2d575502077df7ff6833f024c384112c09c06",
+      "bytes": 97117,
       "format": "pretty"
     },
     "word/settings.xml": {
@@ -73,8 +73,8 @@
       "format": "pretty"
     },
     "word/styles.xml": {
-      "sha256": "006441a8d2acc7075c753dcd85afbc1bc19eb2aea67a4406eb5a6bc98fa0e3da",
-      "bytes": 61300,
+      "sha256": "31603e096b5941802fd9d5d57e601703928d99801e05e77fc09ffddfa8f13df8",
+      "bytes": 61736,
       "format": "pretty"
     },
     "word/theme/theme1.xml": {

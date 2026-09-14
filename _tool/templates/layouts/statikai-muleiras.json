@@ -298,8 +298,12 @@
 
         { "style": "27-Melleklet", "text": "Rétegrendi súlyelemzések" },
         { "style": "11-Szoveg", "text": "KITÖLTENDŐ: rétegrendenként egy alfejezet, alatta a beágyazott Excel számítótábla." },
-        { "style": "23-Cimsor3-szam-nelkul", "text": "Zárófödém — nem járható lapostető" },
+        { "style": "28-Melleklet-alcim", "text": "Zárófödém — nem járható lapostető" },
         { "style": "13-Megjegyzes", "text": "IDE KERÜL a beágyazott Excel súlyelemzés. A rétegrend megnevezése a fenti címsorba tartozik, nem a táblázatba — így a tartalomjegyzékben is megjelenik és kereshető marad." },
+        { "style": "28-Melleklet-alcim", "text": "Közbenső födém — lakószint" },
+        { "style": "13-Megjegyzes", "text": "IDE KERÜL a beágyazott Excel súlyelemzés." },
+        { "style": "28-Melleklet-alcim", "text": "Terasz- és erkélyrétegrend" },
+        { "style": "13-Megjegyzes", "text": "IDE KERÜL a beágyazott Excel súlyelemzés." },
 
         { "style": "27-Melleklet", "text": "Erőtani statikai számítások" },
         { "style": "32-Felsorolas-gondolatjel", "text": "Erőtani statikai számítás — külön dokumentum ({{PROJECT_CODE}}-MED-ZZ-ZZ-T-S-0002)" },

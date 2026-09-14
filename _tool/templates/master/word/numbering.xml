@@ -1429,7 +1429,7 @@
       <w:start w:val="1"/>
       <w:numFmt w:val="decimal"/>
       <w:pStyle w:val="27-Melleklet"/>
-      <w:lvlText w:val="%1"/>
+      <w:lvlText w:val="A%1"/>
       <w:lvlJc w:val="left"/>
       <w:pPr>
         <w:ind w:left="1154" w:hanging="360"/>
@@ -1440,8 +1440,9 @@
     </w:lvl>
     <w:lvl w:ilvl="1" w:tplc="08070019" w:tentative="1">
       <w:start w:val="1"/>
-      <w:numFmt w:val="lowerLetter"/>
-      <w:lvlText w:val="%2."/>
+      <w:numFmt w:val="decimal"/>
+      <w:pStyle w:val="28-Melleklet-alcim"/>
+      <w:lvlText w:val="A%1.%2"/>
       <w:lvlJc w:val="left"/>
       <w:pPr>
         <w:ind w:left="2234" w:hanging="360"/>

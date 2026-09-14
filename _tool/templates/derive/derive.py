@@ -207,6 +207,10 @@ def transform_styles(root, mapping, config, report):
             set_spacing(el, **spec["spacing"])
         if spec.get("keepNext"):
             set_ppr_flag(el, "keepNext")
+        if "outlineLvl" in spec:
+            ppr = ensure_child(el, "pPr", STYLE_ORDER)
+            ensure_child(ppr, "outlineLvl", PPR_ORDER).set(
+                w("val"), str(spec["outlineLvl"]))
         styles[spec["id"]] = el
         report.append("  add   %-34s %s" % (spec["id"], spec["name"]))
 
@@ -229,6 +233,11 @@ def transform_styles(root, mapping, config, report):
         if ops.get("pageBreakBefore"):
             set_ppr_flag(el, "pageBreakBefore")
             bits.append("pageBreakBefore")
+        if "outlineLvl" in ops:
+            ppr = ensure_child(el, "pPr", STYLE_ORDER)
+            ensure_child(ppr, "outlineLvl", PPR_ORDER).set(
+                w("val"), str(ops["outlineLvl"]))
+            bits.append("outlineLvl=%s" % ops["outlineLvl"])
         if ops.get("next"):
             set_child_val(el, "next", ops["next"])
             bits.append("next=%s" % ops["next"])
@@ -310,6 +319,76 @@ def add_caption_numbering(num_root, styles_root, mapping, report):
                     el.set(w("val"), val)
                 break
         report.append("  num   %-24s auto-numbers as %r" % (sid, cfg["lvlText"]))
+
+
+def renumber_appendices(num_root, styles_root, mapping, report):
+    """Appendices as A1, A2; their subheadings as A1.1, A1.2.
+
+    Edits the abstractNum that already backs the appendix style rather than
+    adding a new one, so its indents and tab stops survive. The second level
+    gets a pStyle back-link of its own, which is what makes applying the style
+    number the paragraph.
+    """
+    cfg = mapping.get("appendix_numbering")
+    if not cfg:
+        return
+    anchor = cfg["anchor_style"]
+    target = None
+    for a in num_root.findall(w("abstractNum")):
+        for ps in a.iter(w("pStyle")):
+            if ps.get(w("val")) == anchor:
+                target = a
+                break
+        if target is not None:
+            break
+    if target is None:
+        report.append("  WARN  appendix numbering: no abstractNum references %s" % anchor)
+        return
+
+    by_ilvl = {l.get(w("ilvl")): l for l in target.findall(w("lvl"))}
+    numid = None
+    for style in styles_root.findall(w("style")):
+        if style.get(w("styleId")) == anchor:
+            n = style.find(".//" + w("numId"))
+            if n is not None:
+                numid = n.get(w("val"))
+            break
+
+    for spec in cfg["levels"]:
+        lvl = by_ilvl.get(str(spec["ilvl"]))
+        if lvl is None:
+            report.append("  WARN  appendix numbering: no ilvl %s" % spec["ilvl"])
+            continue
+        ensure_child(lvl, "lvlText", ["start", "numFmt", "pStyle", "lvlText",
+                                      "lvlJc", "pPr", "rPr"]).set(
+            w("val"), spec["lvlText"])
+        ensure_child(lvl, "pStyle", ["start", "numFmt", "pStyle", "lvlText",
+                                     "lvlJc", "pPr", "rPr"]).set(
+            w("val"), spec["pStyle"])
+        # numFmt matters as much as lvlText: the inherited level used
+        # lowerLetter, so "A%1.%2" rendered as A1.a rather than A1.1.
+        if spec.get("numFmt"):
+            ensure_child(lvl, "numFmt", ["start", "numFmt", "pStyle", "lvlText",
+                                         "lvlJc", "pPr", "rPr"]).set(
+                w("val"), spec["numFmt"])
+        if spec.get("start") is not None:
+            ensure_child(lvl, "start", ["start", "numFmt", "pStyle", "lvlText",
+                                        "lvlJc", "pPr", "rPr"]).set(
+                w("val"), str(spec["start"]))
+        report.append("  app   ilvl %s -> %-8s %s"
+                      % (spec["ilvl"], spec["lvlText"], spec["pStyle"]))
+
+        # the subheading style needs the matching numPr to complete the link
+        if spec["ilvl"] > 0 and numid:
+            for style in styles_root.findall(w("style")):
+                if style.get(w("styleId")) == spec["pStyle"]:
+                    sppr = ensure_child(style, "pPr", STYLE_ORDER)
+                    numpr = ensure_child(sppr, "numPr", PPR_ORDER)
+                    ensure_child(numpr, "ilvl", ["ilvl", "numId"]).set(
+                        w("val"), str(spec["ilvl"]))
+                    ensure_child(numpr, "numId", ["ilvl", "numId"]).set(
+                        w("val"), numid)
+                    break
 
 
 def retext_numbering(root, mapping, report):
@@ -638,6 +717,7 @@ def main():
         if part == "word/numbering.xml":
             retext_numbering(root, mapping, report)
             add_caption_numbering(root, styles_root, mapping, report)
+            renumber_appendices(root, styles_root, mapping, report)
             out["word/styles.xml"] = serialise(styles_root)  # numPr was added
         fonts = retarget_rfonts(root, font)
         set_lang(root, lang)

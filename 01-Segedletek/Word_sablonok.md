@@ -35,7 +35,8 @@ oldalsávjuk — azt nem vettük át.
 | 22 - Címsor 2 | `22-Cimsor2` | 10-Alap | 11-Szoveg | line 320 exact, before 360, after 120 |
 | 23 - Címsor 3 szám nélkül | `23-Cimsor3-szam-nelkul` | 10-Alap | 11-Szoveg | line - -, before 240, after 80 |
 | 24 - Címsor 3 számozott | `24-Cimsor3-szamozott` | 23-Cimsor3-szam-nelkul | 11-Szoveg | — |
-| 27 - Melléklet | `27-Melleklet` | 50-Tartalomjegyzek | 11-Szoveg | line - -, before 0, after 200 |
+| 27 - Melléklet | `27-Melleklet` | 50-Szamozatlan-cimsor | 11-Szoveg | line - -, before 0, after 200 |
+| 28 - Melléklet alcím | `28-Melleklet-alcim` | 22-Cimsor2 | 11-Szoveg | line 280 atLeast, before 240, after 120 |
 | 31 - Felsorolás pont | `31-Felsorolas-pont` | 10-Alap | — | line 260 atLeast, before 100, after 0 |
 | 32 - Felsorolás gondolatjel | `32-Felsorolas-gondolatjel` | 10-Alap | — | line 260 atLeast, before 100, after 0 |
 | 33 - Felsorolás gondolatjel 2 | `33-Felsorolas-gondolatjel-2` | 32-Felsorolas-gondolatjel | — | line - -, before 0, after 0 |
@@ -49,7 +50,7 @@ oldalsávjuk — azt nem vettük át.
 | 47 - Dátum | `47-Datum` | 45-Dokumentum-cime | 11-Szoveg | — |
 | 48 - Aláírás | `48-Alairas` | 11-Szoveg | 11-Szoveg | line 260 atLeast, before 480, after 0 |
 | 49 - Nyilatkozat | `49-Nyilatkozat` | 11-Szoveg | 49-Nyilatkozat | line 280 atLeast, before 120, after 0 |
-| 50 - Tartalomjegyzék | `50-Tartalomjegyzek` | 10-Alap | — | line - -, before 0, after 360 |
+| 50 - Számozatlan címsor | `50-Szamozatlan-cimsor` | 10-Alap | — | line - -, before 0, after 360 |
 | 52 - Címlap info | `52-Cimlap-info` | 12-Infoszoveg | 41-Megbizo | — |
 
 ## Buktatók
