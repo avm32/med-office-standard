@@ -24,6 +24,7 @@
     "MED_Epitesi_tevekenyseg": "{{BUILDING_TYPE}}",
     "MED_Epulet_jellemzoi": "{{BUILDING_CHARACTER}}",
     "MED_Munkaresz": "Építési engedélyezési terv tartószerkezeti fejezete",
+    "MED_Epitesz": "{{ARCHITECT}}",
     "MED_Datum": "{{PLACE}}, {{DATE_HU}}"
   },
 
@@ -48,7 +49,13 @@
         { "empty": 1 },
         { "style": "45-Dokumentum-cime", "text": "TARTÓSZERKEZETI" },
         { "style": "45-Dokumentum-cime", "text": "DOKUMENTÁCIÓ" },
-        { "empty": 3 },
+        { "empty": 2 },
+        { "style": "52-Cimlap-info", "text": "Megbízó / Beruházó:" },
+        { "style": "41-Megbizo", "docprop": "MED_Megbizo" },
+        { "empty": 1 },
+        { "style": "52-Cimlap-info", "text": "Építész tervező:" },
+        { "style": "41-Megbizo", "docprop": "MED_Epitesz" },
+        { "empty": 2 },
         { "style": "52-Cimlap-info", "text": "Készítette:" },
         { "style": "52-Cimlap-info", "docprop": "MED_Tervezo" },
         { "style": "52-Cimlap-info", "docprop": "MED_Kepesites" },
@@ -94,7 +101,6 @@
       "content": [
         { "style": "21-Cimsor1", "text": "SZERKEZETTERVEZŐI TERVEZŐI NYILATKOZAT" },
         { "style": "11-Szoveg", "text": "Építési engedélyezési tervhez" },
-        { "empty": 1 },
 
         { "_note": "Major data block, laid out as in the reference document." },
         { "style": "11-Szoveg", "label": "Építési tevékenység:", "docprop": "MED_Epitesi_tevekenyseg" },
@@ -106,7 +112,6 @@
         { "style": "11-Szoveg", "label": "Képesítése:", "docprop": "MED_Kepesites" },
         { "style": "11-Szoveg", "label": "Lakcíme:", "docprop": "MED_TervezoLakcim" },
         { "style": "11-Szoveg", "label": "Kamarai névjegyzék száma:", "docprop": "MED_KamaraiSzam" },
-        { "empty": 1 },
 
         { "style": "49-Nyilatkozat", "text": "Kijelentem, hogy a tervezett építészeti-műszaki megoldás megfelel a vonatkozó jogszabályoknak, hatósági általános érvényű előírásoknak, így különösen:" },
         { "style": "32-Felsorolas-gondolatjel", "text": "a „2023. évi C. törvény a magyar építészetről” (MépTv) (különösen a MépTv. 1. melléklet 3.1.2 pontjában előírtaknak)" },
@@ -117,9 +122,8 @@
         { "style": "49-Nyilatkozat", "text": "A statikai terv az építészeti tervekkel összhangban van." },
         { "style": "49-Nyilatkozat", "text": "A kérelmezett építési munka engedélyezési és kivitelezési terveinek elkészítésére tervezési jogosultsággal rendelkezem." },
         { "style": "49-Nyilatkozat", "text": "Tervező felelősen nyilatkozik, hogy a betervezett építési termékek, szerkezeti megoldások rendelkeznek megfelelőségi igazolással, illetve teljesítménynyilatkozattal." },
-        { "empty": 1 },
         { "style": "47-Datum", "docprop": "MED_Datum" },
-        { "empty": 2 },
+        { "empty": 1 },
         { "style": "48-Alairas", "text": "………………………………………" },
         { "style": "48-Alairas", "docprop": "MED_Tervezo" },
         { "style": "48-Alairas", "text": "tervező" },

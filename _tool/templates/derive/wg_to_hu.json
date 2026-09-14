@@ -108,6 +108,11 @@
       "_why": "was after=3000, same problem"
     },
 
+    "27-Melleklet": {
+      "pageBreakBefore": true,
+      "_why": "Appendices start on a new page, like chapter headings. WG's appendix style did not force a break because their appendices were a separate document."
+    },
+
     "15-Abra": {
       "keepNext": true,
       "next": "14-Abra-felirat",

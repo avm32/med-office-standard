@@ -313,6 +313,8 @@ FACT_ALIASES = {
     "KAMARAI_SZÁM": "CHAMBER_NUMBER",
     "CHAMBER_NUMBER": "CHAMBER_NUMBER",
     "MEGBÍZÓ": "CLIENT",
+    "ÉPÍTÉSZ": "ARCHITECT",
+    "ARCHITECT": "ARCHITECT",
     "CÍM": "ADDRESS",
 }
 
@@ -330,13 +332,13 @@ def apply_aliases(facts):
 
 
 LAYOUT_DESCRIPTIONS = {
-    "statikai-muleiras": "Engedelyezesi_terv_statikai_muleiras",
+    "statikai-muleiras": "Engterv_statikai_muleiras",
 }
 
 # Where each layout files itself inside the project. The design stage lives in
 # the folder because the container ID has no field for it.
 LAYOUT_SUBFOLDER = {
-    "statikai-muleiras": "01-Engedelyezesi_terv",
+    "statikai-muleiras": "01-Engterv",
 }
 
 
@@ -383,6 +385,7 @@ def cmd_new(args, config, medtpl):
         "PLACE": args.place or "Budapest",
         "DATE_HU": "%d. %s %d." % (today.year, hu_months[today.month - 1], today.day),
         "REVISION": args.revision or "S3-P01",
+        "ARCHITECT": facts.get("ARCHITECT", facts.get("ÉPÍTÉSZ", "TBC")),
         "BUILDING_TYPE": facts.get("BUILDING_TYPE", "TBC"),
         "BUILDING_TYPE_LOWER": facts.get("BUILDING_TYPE", "TBC").lower(),
         "BUILDING_CHARACTER": facts.get("BUILDING_CHARACTER", "TBC"),

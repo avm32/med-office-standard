@@ -92,26 +92,37 @@ def table(spec):
     if not widths:
         widths = [total // ncols] * ncols
 
+    # Borders off at table level; the only rule is drawn under the header row,
+    # as a bottom border on those cells. Quieter than a full grid and it lets
+    # the numbers carry the structure rather than the lines.
     out = ['<w:tbl><w:tblPr><w:tblStyle w:val="%s"/>' % esc(style),
            '<w:tblW w:w="%d" w:type="dxa"/>' % total,
            '<w:tblBorders>'
-           '<w:top w:val="single" w:sz="4" w:color="auto"/>'
-           '<w:left w:val="single" w:sz="4" w:color="auto"/>'
-           '<w:bottom w:val="single" w:sz="4" w:color="auto"/>'
-           '<w:right w:val="single" w:sz="4" w:color="auto"/>'
-           '<w:insideH w:val="single" w:sz="4" w:color="auto"/>'
-           '<w:insideV w:val="single" w:sz="4" w:color="auto"/>'
+           '<w:top w:val="none" w:sz="0" w:color="auto"/>'
+           '<w:left w:val="none" w:sz="0" w:color="auto"/>'
+           '<w:bottom w:val="none" w:sz="0" w:color="auto"/>'
+           '<w:right w:val="none" w:sz="0" w:color="auto"/>'
+           '<w:insideH w:val="none" w:sz="0" w:color="auto"/>'
+           '<w:insideV w:val="none" w:sz="0" w:color="auto"/>'
            '</w:tblBorders></w:tblPr>',
            '<w:tblGrid>%s</w:tblGrid>'
            % "".join('<w:gridCol w:w="%d"/>' % x for x in widths)]
 
+    HEADER_SHADE = "EDEDED"   # faint grey, still legible when photocopied
+
     def emit_row(cells, style_name, bold, is_header):
         trpr = "<w:trPr><w:tblHeader/></w:trPr>" if is_header else ""
+        extra_tc = ""
+        if is_header:
+            extra_tc = ('<w:tcBorders><w:bottom w:val="single" w:sz="8" '
+                        'w:color="808080"/></w:tcBorders>'
+                        '<w:shd w:val="clear" w:color="auto" w:fill="%s"/>'
+                        % HEADER_SHADE)
         tds = []
         for i, cell in enumerate(cells):
             tds.append(
-                '<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/></w:tcPr>%s</w:tc>'
-                % (widths[i] if i < len(widths) else widths[-1],
+                '<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/>%s</w:tcPr>%s</w:tc>'
+                % (widths[i] if i < len(widths) else widths[-1], extra_tc,
                    para(style_name, run(cell, bold=bold))))
         out.append("<w:tr>%s%s</w:tr>" % (trpr, "".join(tds)))
 
@@ -126,8 +137,23 @@ def table(spec):
     return "".join(out)
 
 
-def picture(rel_id, width_cm, height_cm, name="Kep", doc_pr_id=1):
+def picture(rel_id, width_cm, height_cm, name="Kep", doc_pr_id=1, svg_rel=None):
+    """An inline picture. If svg_rel is given, Word renders the SVG as vector.
+
+    Word 2016+ supports SVG through an extension on a:blip. The raster in
+    r:embed is NOT redundant - it is the mandatory fallback for older Word,
+    for LibreOffice, and for anything that reads the package without
+    understanding the extension. Both parts have to be in the package.
+    """
     cx, cy = int(width_cm * CM_EMU), int(height_cm * CM_EMU)
+    if svg_rel:
+        blip = ('<a:blip r:embed="%s"><a:extLst>'
+                '<a:ext uri="{96DAC541-7B7A-43D3-8B79-37D633B846F1}">'
+                '<asvg:svgBlip xmlns:asvg="http://schemas.microsoft.com/office/drawing/2016/SVG/main" '
+                'r:embed="%s"/>'
+                '</a:ext></a:extLst></a:blip>' % (esc(rel_id), esc(svg_rel)))
+    else:
+        blip = '<a:blip r:embed="%s"/>' % esc(rel_id)
     return (
         '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">'
         '<wp:extent cx="%d" cy="%d"/>'
@@ -135,12 +161,12 @@ def picture(rel_id, width_cm, height_cm, name="Kep", doc_pr_id=1):
         '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
         '<pic:pic>'
         '<pic:nvPicPr><pic:cNvPr id="0" name="%s"/><pic:cNvPicPr/></pic:nvPicPr>'
-        '<pic:blipFill><a:blip r:embed="%s"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+        '<pic:blipFill>%s<a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
         '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="%d" cy="%d"/></a:xfrm>'
         '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
         '</pic:pic></a:graphicData></a:graphic>'
         '</wp:inline></w:drawing></w:r>'
-        % (cx, cy, doc_pr_id, esc(name), esc(name), esc(rel_id), cx, cy)
+        % (cx, cy, doc_pr_id, esc(name), esc(name), blip, cx, cy)
     )
 
 
@@ -285,7 +311,8 @@ def render_header(ctx, with_logo=True, right_text="", lines=None):
         h = ctx.get("logo_h_cm", 1.1)
         right = para("Header",
                      picture(rel, ctx.get("logo_w_cm", h), h, "Medek logo",
-                             ctx.next_id()),
+                             ctx.next_id(),
+                             svg_rel=ctx.get("logo_svg_rel_header")),
                      '<w:jc w:val="right"/>')
 
     cell = ('<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/>'

@@ -193,7 +193,7 @@ A fázis ezért két helyen látszik:
 ```
 07-Dokumentumok/
 └── 02-Muszaki_Leiras/
-    ├── 01-Engedelyezesi_terv/
+    ├── 01-Engterv/
     └── 02-Kiviteli_terv/
 ```
 
@@ -205,7 +205,7 @@ A kiadott fájl neve az azonosító után **aláhúzással** kaphat egy emberi
 olvasásra szánt megnevezést:
 
 ```
-26030-MED-ZZ-ZZ-T-S-0001-S3-P05_Engedelyezesi_terv_statikai_muleiras.docx
+26030-MED-ZZ-ZZ-T-S-0001-S3-P05_Engterv_statikai_muleiras.docx
 └──────── azonosító ─────────┘ └────────── megnevezés ──────────┘
 ```
 
@@ -221,7 +221,7 @@ letöltési mappa, pendrive. Ilyenkor a mappa már nem segít, a név viszont ig
 
 > Régebbi BS 1192 gyakorlat ugyanezt engedte meg (`..._Doors`). Az ISO 19650
 > nemzeti melléklete kimondja, hogy az azonosító *nem* tartalmaz megnevezést —
-> és azt is, hogy a projekt információs szabványa írja le, milyen kiegészítő
+> és azt is, hogy a projekt információs előírása írja le, milyen kiegészítő
 > adat kerül a névbe a CDE-ből való kivitelkor. Ez itt pontosan az.
 
 ---

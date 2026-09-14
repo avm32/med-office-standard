@@ -1266,6 +1266,7 @@
     <w:qFormat/>
     <w:rsid w:val="004522CF"/>
     <w:pPr>
+      <w:pageBreakBefore/>
       <w:numPr>
         <w:numId w:val="18"/>
       </w:numPr>

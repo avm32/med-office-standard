@@ -1,6 +1,6 @@
 @echo off
 REM A Word sablonok ujraepitese a stilusmesterbol.
-REM Akkor futtasd, ha a szabvany (stilusok) valtozott.
+REM Akkor futtasd, ha a dokumentumrend (stilusok) valtozott.
 REM
 REM A mar letrehozott dokumentumokat NEM erinti. Egy meglevo dokumentum
 REM stilusfrissiteset a "medtpl restyle" vegzi - az viszont nem nyul olyan

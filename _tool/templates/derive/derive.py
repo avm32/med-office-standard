@@ -226,6 +226,9 @@ def transform_styles(root, mapping, config, report):
         if ops.get("keepNext"):
             set_ppr_flag(el, "keepNext")
             bits.append("keepNext")
+        if ops.get("pageBreakBefore"):
+            set_ppr_flag(el, "pageBreakBefore")
+            bits.append("pageBreakBefore")
         if ops.get("next"):
             set_child_val(el, "next", ops["next"])
             bits.append("next=%s" % ops["next"])

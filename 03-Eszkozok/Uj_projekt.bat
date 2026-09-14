@@ -1,5 +1,5 @@
 @echo off
-REM Uj projektmappa letrehozasa az irodai szabvany szerint.
+REM Uj projektmappa letrehozasa az irodai dokumentumrend szerint.
 REM Dupla kattintassal inditsd. Kerdez, amit kell.
 REM
 REM .bat es nem .exe: nincs build lepes, olvashato marad, es ha valami elromlik

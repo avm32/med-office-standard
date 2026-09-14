@@ -21,8 +21,13 @@ PR_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 
 # Parts the user owns once a document exists. On rebuild these are preserved
 # from the target rather than regenerated.
+# A kept part's relationships must be kept with it. word/_rels/header1.xml.rels
+# does not start with "word/header", so leaving it out silently produced a
+# header with no relationships and an unresolvable logo.
 USER_PREFIXES = ("word/document.xml", "word/header", "word/footer",
-                 "word/media/", "word/embeddings/")
+                 "word/media/", "word/embeddings/",
+                 "word/_rels/header", "word/_rels/footer",
+                 "word/_rels/document.xml.rels")
 
 BASE_RELS = [
     ("rId1", "styles", "styles.xml"),
@@ -73,7 +78,8 @@ def gen_content_types(parts, as_template, template_ct, document_ct):
              '  <Default Extension="xml" ContentType="application/xml"/>',
              '  <Default Extension="png" ContentType="image/png"/>',
              '  <Default Extension="jpg" ContentType="image/jpeg"/>',
-             '  <Default Extension="jpeg" ContentType="image/jpeg"/>']
+             '  <Default Extension="jpeg" ContentType="image/jpeg"/>',
+             '  <Default Extension="svg" ContentType="image/svg+xml"/>']
     # sorted(set(...)): a duplicate PartName override is invalid OOXML and Word
     # rejects the whole package with only "the file appears to be corrupted".
     for part in sorted(set(parts)):
@@ -196,7 +202,20 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
         ctx["logo_rel"] = "rId20"          # used by body images (document.xml)
         ctx["logo_rel_header"] = "rId1"    # used by the header part
         rels.append(("rId20", "image", target))
-        header_rels = gen_rels([("rId1", "image", target)])
+        header_rel_list = [("rId1", "image", target)]
+
+        # Vector logo, if one sits beside the raster. Word 2016+ renders the
+        # SVG; the raster stays as the mandatory fallback.
+        svg_src = src.with_suffix(".svg")
+        if svg_src.is_file():
+            svg_media = "word/media/medtpl-logo.svg"
+            parts[svg_media] = svg_src.read_bytes()
+            svg_target = svg_media.split("word/", 1)[1]
+            ctx["logo_svg_rel"] = "rId21"
+            ctx["logo_svg_rel_header"] = "rId2"
+            rels.append(("rId21", "image", svg_target))
+            header_rel_list.append(("rId2", "image", svg_target))
+        header_rels = gen_rels(header_rel_list)
 
     if kept:
         parts.update(kept)
