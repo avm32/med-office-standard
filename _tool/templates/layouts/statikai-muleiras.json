@@ -25,6 +25,7 @@
     "MED_Epulet_jellemzoi": "{{BUILDING_CHARACTER}}",
     "MED_Munkaresz": "Építési engedélyezési terv tartószerkezeti fejezete",
     "MED_Epitesz": "{{ARCHITECT}}",
+    "MED_Epulet_tipus": "{{BUILDING_TYPE_LOWER}}",
     "MED_Datum": "{{PLACE}}, {{DATE_HU}}"
   },
 
@@ -43,8 +44,8 @@
       "content": [
         { "empty": 2 },
         { "style": "42-Megbizas-neve", "docprop": "MED_Cim" },
-        { "style": "43-Cim", "text": "hrsz.: {{HRSZ}}" },
-        { "style": "43-Cim", "text": "sz. alatt építendő {{BUILDING_TYPE_LOWER}}" },
+        { "style": "43-Cim", "label": "hrsz.:", "docprop": "MED_Hrsz", "inline": true },
+        { "style": "43-Cim", "label": "sz. alatt építendő", "docprop": "MED_Epulet_tipus", "inline": true },
         { "style": "43-Cim", "text": "építési engedélyezési tervéhez készített" },
         { "empty": 1 },
         { "style": "45-Dokumentum-cime", "text": "TARTÓSZERKEZETI" },
@@ -65,7 +66,7 @@
         { "style": "52-Cimlap-info", "docprop": "MED_TervezoLakcim" },
         { "empty": 2 },
         { "style": "47-Datum", "docprop": "MED_Datum" },
-        { "style": "46-Dokumentumszam", "text": "munkaszám: {{PROJECT_CODE}} · {{REVISION}}" }
+        { "style": "46-Dokumentumszam", "label": "munkaszám:", "docprop": "MED_Munkaszam", "inline": true }
       ]
     },
 

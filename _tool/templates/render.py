@@ -55,15 +55,23 @@ def field(instr, placeholder=""):
     )
 
 
-def docprop(name):
-    """A DOCPROPERTY field.
+def docprop(name, ctx=None):
+    """A DOCPROPERTY field, with its cached result set to the actual value.
 
-    Reads a custom document property, so a value that appears in several places
-    - project address on the cover, in the nyilatkozat and in the footer - is
-    stored once and updated from File > Info > Properties > Advanced. Ctrl+A
-    then F9 refreshes every instance.
+    A Word field has two halves: the instruction, and a cached result that is
+    what you SEE until the field is updated. Setting a value therefore means
+    setting the document property and the cached result - never replacing the
+    field with literal text. Do that and the value stops being linked: editing
+    the property no longer changes the document, and the single-source-of-truth
+    the field existed for is gone.
+
+    Falls back to the property name only when no value is known, so an unfilled
+    field is visibly unfilled rather than silently blank.
     """
-    return field(' DOCPROPERTY "%s" \* MERGEFORMAT ' % name, name)
+    value = name
+    if ctx is not None:
+        value = (ctx.get("docprops") or {}).get(name) or name
+    return field(' DOCPROPERTY "%s" \* MERGEFORMAT ' % name, value)
 
 
 def para(style=None, content="", extra=""):
@@ -237,8 +245,10 @@ def render_block(block, ctx):
                             ctx.next_id()))
     if "docprop" in block:
         label = block.get("label", "")
-        content = (run(label) if label else "") + docprop(block["docprop"])
-        extra = '<w:tabs><w:tab w:val="left" w:pos="3402"/></w:tabs>' if label else ""
+        inline = block.get("inline", False)
+        content = (run(label + (" " if inline else "")) if label else "")             + docprop(block["docprop"], ctx)
+        extra = ("" if inline or not label
+                 else '<w:tabs><w:tab w:val="left" w:pos="3402"/></w:tabs>')
         return para(block.get("style"), content, extra)
     if "field" in block:
         return para(block.get("style"), field(block["field"], block.get("placeholder", "")))
@@ -356,7 +366,7 @@ def render_footer_lines(ctx, lines, page_numbers=True):
         content = ""
         for piece in spec.get("parts", []):
             if "docprop" in piece:
-                content += docprop(piece["docprop"])
+                content += docprop(piece["docprop"], ctx)
             else:
                 content += run(substitute(piece.get("text", ""), ctx))
         out.append(para(spec.get("style", "Footer"), content,

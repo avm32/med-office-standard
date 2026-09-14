@@ -217,6 +217,15 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
             header_rel_list.append(("rId2", "image", svg_target))
         header_rels = gen_rels(header_rel_list)
 
+    # Resolved before rendering: a DOCPROPERTY field caches its value as the
+    # field result, so the values must be known while the document is built.
+    docprops = {}
+    for key, spec in (layout.get("docprops") or {}).items():
+        if key.startswith("_"):
+            continue
+        docprops[key] = render.substitute(str(spec), ctx)
+    ctx["docprops"] = docprops
+
     if kept:
         parts.update(kept)
     else:
@@ -236,11 +245,6 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
     parts["word/_rels/document.xml.rels"] = gen_rels(rels)
     parts["[Content_Types].xml"] = gen_content_types(
         parts.keys(), as_template, medtpl.TEMPLATE_CT, medtpl.DOCUMENT_CT)
-    docprops = {}
-    for key, spec in (layout.get("docprops") or {}).items():
-        if key.startswith("_"):
-            continue
-        docprops[key] = render.substitute(str(spec), ctx)
     parts["docProps/custom.xml"] = gen_custom_props(
         config, name, master, medtpl.part_paths, docprops)
 

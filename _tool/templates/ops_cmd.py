@@ -319,6 +319,31 @@ FACT_ALIASES = {
 }
 
 
+TEAM_ROLES = {
+    "ARCHITECT": "ARCHITECT", "ÉPÍTÉSZ": "ARCHITECT",
+    "CLIENT": "CLIENT", "MEGBÍZÓ": "CLIENT",
+    "STRUCTURAL": "STRUCTURAL", "TARTÓSZERKEZET": "STRUCTURAL",
+}
+
+
+def parse_team_table(text):
+    """Pull the project team table out of PROJECT.md.
+
+    Rows look like: | Architect | Archidea Kft, 1037 Budapest | contact | A |
+    The facts table uses bold labels and two columns; this one does not, so it
+    needs its own pass. Takes the organisation column - that is what belongs on
+    a cover page, not the individual's contact details.
+    """
+    out = {}
+    for m in re.finditer(r"^\|\s*([^|*][^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|", text, re.M):
+        role = re.sub(r"\W+", "_", m.group(1).strip()).upper().strip("_")
+        org = m.group(2).strip()
+        if role in TEAM_ROLES and org and org not in ("", "-", "—"):
+            # "Archidea Kft, 1037 Budapest, Becsi ut 321" -> "Archidea Kft"
+            out[TEAM_ROLES[role]] = org.split(",")[0].strip()
+    return out
+
+
 def apply_aliases(facts):
     for src, dest in FACT_ALIASES.items():
         if src in facts and not facts.get(dest):
@@ -328,6 +353,12 @@ def apply_aliases(facts):
     hrsz = facts.get("HRSZ", "")
     if hrsz:
         facts["HRSZ"] = re.split(r"[\s(]", hrsz.strip(), 1)[0].rstrip(".,")
+    # The address row often repeats the hrsz in brackets. The cover prints both
+    # fields, so leaving it in reads as "... (hrsz. 162163)  hrsz.: 162163".
+    addr = facts.get("ADDRESS", "")
+    if addr:
+        facts["ADDRESS"] = re.sub(r"\s*\((?:hrsz|helyrajzi)[^)]*\)\s*$", "",
+                                  addr, flags=re.I).strip().rstrip(",")
     return facts
 
 
@@ -367,7 +398,11 @@ def cmd_new(args, config, medtpl):
     facts = {}
     if notes.is_dir():
         for cand in notes.glob("*-PROJECT.md"):
-            facts = apply_aliases(parse_project_md(cand))
+            facts = parse_project_md(cand)
+            team = parse_team_table(cand.read_text(encoding="utf-8"))
+            for k, v in team.items():
+                facts.setdefault(k, v)   # facts table wins over the team table
+            facts = apply_aliases(facts)
             break
 
     today = datetime.date.today()
@@ -387,7 +422,9 @@ def cmd_new(args, config, medtpl):
         "REVISION": args.revision or "S3-P01",
         "ARCHITECT": facts.get("ARCHITECT", facts.get("ÉPÍTÉSZ", "TBC")),
         "BUILDING_TYPE": facts.get("BUILDING_TYPE", "TBC"),
-        "BUILDING_TYPE_LOWER": facts.get("BUILDING_TYPE", "TBC").lower(),
+        # TBC must stay shouting - a lowercased "tbc" reads like a real value
+        "BUILDING_TYPE_LOWER": (lambda v: v if v == "TBC" else v.lower())(
+            facts.get("BUILDING_TYPE", "TBC")),
         "BUILDING_CHARACTER": facts.get("BUILDING_CHARACTER", "TBC"),
         # Seismic basis: stated in the muleiras because DCL vs DCM decides
         # whether ductile detailing rules apply at all.
