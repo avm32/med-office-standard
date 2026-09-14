@@ -1,0 +1,69 @@
+{
+  "_note": "Style catalogue. Every style rendered with its own name as the text, so a glance shows whether the whole set survived a change. This is the verification instrument - it turns the manual Word pass from an hour into five minutes. Build it after every change to master/.",
+
+  "logo": "assets/med-logo.jpg",
+  "logo_h_cm": 1.6,
+  "logo_w_cm": 1.6,
+  "header_right": "Stíluskatalógus",
+  "footer_left": "Medek Mérnöki Iroda Kft.",
+
+  "sections": [
+    {
+      "content": [
+        { "style": "45-Dokumentum-cime", "text": "Stíluskatalógus" },
+        { "style": "12-Infoszoveg", "text": "Minden bekezdésstílus a saját nevével megjelenítve. Ha egy stílus eltűnik vagy elromlik, itt azonnal látszik." },
+        { "style": "47-Datum", "text": "medtpl {{VERSION}} — {{DATE}}" },
+        { "empty": 1 },
+
+        { "style": "21-Cimsor1", "text": "Címsorok" },
+        { "style": "11-Szoveg", "text": "A fenti címsor automatikusan kapja a sorszámát a numbering.xml visszahivatkozásából. Soha ne gépeljen sorszámot a címsor szövegébe — abból „1 1. Cím” lesz." },
+        { "style": "22-Cimsor2", "text": "22 - Címsor 2" },
+        { "style": "11-Szoveg", "text": "11 - Szöveg: ez a törzsszöveg stílusa. Ebbe kerül a műleírás szövegének nagy része." },
+        { "style": "23-Cimsor3-szam-nelkul", "text": "23 - Címsor 3 szám nélkül" },
+        { "style": "24-Cimsor3-szamozott", "text": "24 - Címsor 3 számozott" },
+
+        { "style": "22-Cimsor2", "text": "Szövegstílusok" },
+        { "style": "11-Szoveg", "text": "11 - Szöveg — törzsszöveg." },
+        { "style": "12-Infoszoveg", "text": "12 - Infoszöveg — kiegészítő információ, kisebb betűvel." },
+        { "style": "13-Megjegyzes", "text": "13 - Megjegyzés — behúzott megjegyzés." },
+        { "style": "49-Nyilatkozat", "text": "49 - Nyilatkozat — jogszabályi nyilatkozat bekezdése, kicsit lazább sorközzel." },
+        { "style": "48-Alairas", "text": "48 - Aláírás — aláírásblokk, keepNext-tel együtt tartva." },
+
+        { "style": "22-Cimsor2", "text": "Felsorolások" },
+        { "style": "31-Felsorolas-pont", "text": "31 - Felsorolás pont — első szint." },
+        { "style": "31-Felsorolas-pont", "text": "31 - Felsorolás pont — második elem." },
+        { "style": "32-Felsorolas-gondolatjel", "text": "32 - Felsorolás gondolatjel." },
+        { "style": "33-Felsorolas-gondolatjel-2", "text": "33 - Felsorolás gondolatjel 2 — mélyebb szint." },
+        { "style": "34-Felsorolas-szamozott", "text": "34 - Felsorolás számozott." },
+
+        { "pagebreak": true },
+
+        { "style": "21-Cimsor1", "text": "Táblázatok és ábrák" },
+        { "style": "16-Tablazatcim", "text": "16 - Táblázatcím" },
+        { "table": {
+            "header": ["Szerkezeti elem", "Anyagminőség", "Megjegyzés"],
+            "rows": [
+              ["Alaplemez", "C25/30 - XC2", "18 - Táblázatszöveg"],
+              ["Pillérek", "C30/37 - XC1", ""],
+              ["Betonacél", "B500B", ""]
+            ],
+            "widths": [3400, 3000, 2671]
+          }
+        },
+        { "style": "12-Infoszoveg", "text": "A táblázat a 16.0 cm-es szövegtükörhöz igazodik. A WG sablon 13.0 cm-es tükrébe a hat oszlopnál szélesebb táblázatok nem fértek be." },
+
+        { "empty": 1 },
+        { "image": "logo", "style": "15-Abra", "width_cm": 3.0, "height_cm": 3.0, "name": "Példa ábra" },
+        { "style": "14-Abra-Tablazat-felirat", "text": "14 - Ábra/Táblázat felirat — a 15 - Ábra után Enterrel automatikusan ide kerül a kurzor." },
+        { "style": "12-Infoszoveg", "text": "A 15 - Ábra stílus keepNext-et kapott, így a kép és a felirata nem szakad el egymástól oldaltöréskor." },
+
+        { "style": "21-Cimsor1", "text": "Képbeillesztési próba" },
+        { "style": "11-Szoveg", "text": "ELLENŐRZÉS: illesszen be egy magas képernyőképet ebbe a bekezdésbe (11 - Szöveg), és egy másikat egy sima Normal bekezdésbe. Egyiknek sem szabad egy sor magasságúra levágódnia. Ez a hiba az eredeti WG sablonban megvolt; itt a Normal stílus atLeast sorközt kapott." },
+        { "empty": 3 },
+
+        { "style": "27-Melleklet", "text": "27 - Melléklet" },
+        { "style": "11-Szoveg", "text": "A mellékletek számozása külön sorozat." }
+      ]
+    }
+  ]
+}

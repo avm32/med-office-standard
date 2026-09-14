@@ -467,9 +467,36 @@ def check(root, config, verbose=True):
             if not resolved.is_file():
                 rel_problems.append("%s -> %s" % (rels_path.name, target))
     if rel_problems:
-        fail("relationships resolve", "; ".join(rel_problems[:6]))
+        fail("relationship targets exist", "; ".join(rel_problems[:6]))
     else:
         ok("every relationship target exists")
+
+    # 10. per-part relationship ids resolve
+    # Relationship ids are scoped to the part that uses them: an r:embed inside
+    # header1.xml resolves against word/_rels/header1.xml.rels, never against
+    # document.xml.rels. Declaring it in the wrong place still opens in Word -
+    # the image simply does not render - so nothing else here would catch it.
+    dangling_ids = []
+    for part in part_paths(root):
+        if not part.endswith(".xml") or "/_rels/" in part or part == FIRST_ENTRY:
+            continue
+        blob = (root / part).read_bytes().decode("utf-8", "replace")
+        used = set(re.findall(r'r:(?:id|embed|link)="(rId\d+)"', blob))
+        if not used:
+            continue
+        rels_path = root / Path(part).parent / "_rels" / (Path(part).name + ".rels")
+        declared = set()
+        if rels_path.is_file():
+            declared = set(re.findall(r'Id="(rId\d+)"',
+                                      rels_path.read_bytes().decode("utf-8", "replace")))
+        missing = used - declared
+        if missing:
+            dangling_ids.append("%s uses %s, declared: %s"
+                                % (part, sorted(missing), sorted(declared) or "none"))
+    if dangling_ids:
+        fail("per-part relationship ids", "; ".join(dangling_ids[:4]))
+    else:
+        ok("per-part relationship ids resolve")
 
     if verbose:
         for status, label in checks:
@@ -576,8 +603,44 @@ def main(argv=None):
     sp.add_argument("target", nargs="?")
     sp.set_defaults(func=cmd_check)
 
+    sp = subs.add_parser("build", help="master/ + layout -> build/")
+    sp.add_argument("layout", nargs="?", help="layout name; omit to build all")
+    sp.add_argument("--out")
+    sp.add_argument("--force-content", action="store_true",
+                    help="regenerate document.xml even if the target exists "
+                         "(DISCARDS hand edits made in Word)")
+    sp.set_defaults(func=lambda a, c: __import__("build_cmd").cmd_build(a, c, sys.modules[__name__]))
+
     sp = subs.add_parser("roundtrip", help="assert pack->unpack is byte-identical")
     sp.set_defaults(func=cmd_roundtrip)
+
+    me = sys.modules[__name__]
+    ops = lambda fn: (lambda a, c: getattr(__import__("ops_cmd"), fn)(a, c, me))
+
+    sp = subs.add_parser("restyle", help="push a style fix into an existing document")
+    sp.add_argument("file")
+    sp.add_argument("--dry-run", action="store_true")
+    sp.set_defaults(func=ops("cmd_restyle"))
+
+    sp = subs.add_parser("slim", help="report and drop unreferenced media")
+    sp.add_argument("file")
+    sp.add_argument("--dry-run", action="store_true")
+    sp.set_defaults(func=ops("cmd_slim"))
+
+    sp = subs.add_parser("docs", help="regenerate the Hungarian style reference")
+    sp.set_defaults(func=ops("cmd_docs"))
+
+    sp = subs.add_parser("new", help="start a real document in a project folder")
+    sp.add_argument("project", help="the project folder")
+    sp.add_argument("--layout", default="statikai-muleiras")
+    sp.add_argument("--into", default="07-Dokumentumok/02-Muszaki_Leiras",
+                    help="destination inside the project (Hungarian folder names by default)")
+    sp.add_argument("--designer")
+    sp.add_argument("--chamber", help="chamber / nevjegyzeki number")
+    sp.add_argument("--place")
+    sp.add_argument("--revision")
+    sp.add_argument("--force", action="store_true")
+    sp.set_defaults(func=ops("cmd_new"))
 
     args = ap.parse_args(argv)
     return args.func(args, config)

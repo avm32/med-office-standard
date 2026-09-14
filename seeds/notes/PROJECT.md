@@ -20,6 +20,10 @@ tags: [project]
 > Project facts. **This file is yours** — `medstd.py update` never overwrites it.
 > Fill it in at project start; the agent reads it first.
 >
+> `Hrsz.`, `Designer` and `Chamber number` are read by `medtpl new` when it
+> generates a műleírás, so fill them here rather than typing them into each
+> document.
+>
 > Companions: [[{{PROJECT_CODE}}-ASSUMPTIONS|assumptions]] · [[{{PROJECT_CODE}}-DECISIONS|decisions]] · [[{{PROJECT_CODE}}-RFI|queries]]
 >
 > Project files live at `{{PROJECT_PATH}}` — this note deliberately does not.
@@ -32,10 +36,13 @@ tags: [project]
 | **Name** | {{PROJECT_NAME}} |
 | **Client** | {{CLIENT}} |
 | **Address** | {{ADDRESS}} |
+| **Hrsz.** | TBC |
 | **Stage** | {{STAGE}} |
 | **Originator** | {{ORIGINATOR}} |
 | **Folder language** | {{LANG}} |
 | **Opened** | {{DATE}} |
+| **Designer** | TBC |
+| **Chamber number** | TBC |
 
 ## Scope
 

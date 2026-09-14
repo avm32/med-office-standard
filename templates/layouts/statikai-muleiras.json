@@ -1,0 +1,154 @@
+{
+  "_note": "Engedélyezési terv statikai műleírás. The section sequence is taken from the real Hamvas utca document, not invented. {{TOKEN}} values are substituted from the project's PROJECT.md by `medtpl new`.",
+
+  "logo": "assets/med-logo.jpg",
+  "logo_h_cm": 1.6,
+  "logo_w_cm": 1.6,
+  "header_right": "{{PROJECT_CODE}} — {{PROJECT_NAME}}",
+  "footer_left": "Medek Mérnöki Iroda Kft.",
+
+  "sections": [
+    {
+      "_note": "Címlap. No page number; the body section restarts at 1.",
+      "title_page": true,
+      "content": [
+        { "empty": 2 },
+        { "style": "45-Dokumentum-cime", "text": "TARTÓSZERKEZETI MŰSZAKI LEÍRÁS" },
+        { "style": "46-Dokumentumszam", "text": "építési engedélyezési tervdokumentációhoz" },
+        { "empty": 2 },
+
+        { "style": "42-Megbizas-neve", "text": "{{PROJECT_NAME}}" },
+        { "style": "43-Cim", "text": "{{ADDRESS}}" },
+        { "style": "43-Cim", "text": "hrsz.: {{HRSZ}}" },
+        { "empty": 1 },
+        { "style": "41-Megbizo", "text": "Megbízó: {{CLIENT}}" },
+        { "empty": 3 },
+
+        { "style": "52-Cimlap-info", "text": "Tervező:" },
+        { "style": "52-Cimlap-info", "text": "{{DESIGNER}}" },
+        { "style": "52-Cimlap-info", "text": "tartószerkezeti tervező" },
+        { "style": "52-Cimlap-info", "text": "névjegyzéki szám: {{CHAMBER_NUMBER}}" },
+        { "empty": 1 },
+        { "style": "52-Cimlap-info", "text": "Medek Mérnöki Iroda Kft." },
+        { "style": "52-Cimlap-info", "text": "{{PRACTICE_ADDRESS}}" },
+        { "empty": 2 },
+        { "style": "47-Datum", "text": "{{PLACE}}, {{DATE_HU}}" },
+        { "style": "46-Dokumentumszam", "text": "munkaszám: {{PROJECT_CODE}} · {{REVISION}}" }
+      ]
+    },
+
+    {
+      "_note": "Tartalomjegyzék. The TOC field is left with an empty result on purpose - a stale rendered result is the trap the WG reference warns about. Press F9 in Word to populate.",
+      "content": [
+        { "style": "50-Tartalomjegyzek", "text": "Tartalomjegyzék" },
+        { "field": " TOC \\o \"1-3\" \\h \\z \\u ", "style": "11-Szoveg",
+          "placeholder": "A tartalomjegyzék frissítéséhez: kattintson ide, majd F9." }
+      ]
+    },
+
+    {
+      "_note": "Body. Numbering restarts at 1 here, which is why the footer uses SECTIONPAGES rather than NUMPAGES.",
+      "restart_page_numbering": 1,
+      "content": [
+        { "style": "21-Cimsor1", "text": "Tervezői nyilatkozat" },
+        { "style": "49-Nyilatkozat", "text": "Alulírott {{DESIGNER}} tartószerkezeti tervező kijelentem, hogy a(z) {{ADDRESS}} (hrsz.: {{HRSZ}}) alatti építési munkára vonatkozó tartószerkezeti tervdokumentációt a vonatkozó jogszabályok és szabványok figyelembevételével készítettem el." },
+        { "style": "49-Nyilatkozat", "text": "A tervezés során az alábbi jogszabályokat vettem figyelembe:" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "2023. évi C. törvény a magyar építészetről (MépTv)" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "253/1997. (XII. 20.) Korm. rendelet az országos településrendezési és építési követelményekről (OTÉK)" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "191/2009. (IX. 15.) Korm. rendelet az építőipari kivitelezési tevékenységről" },
+        { "style": "49-Nyilatkozat", "text": "Kijelentem, hogy az általam tervezett tartószerkezet az állékonyság és a mechanikai ellenállás követelményeinek megfelel, és a tervezett műszaki megoldás megfelel a vonatkozó előírásoknak." },
+        { "style": "12-Infoszoveg", "text": "ELLENŐRIZNI: a nyilatkozat szövegét és a hivatkozott jogszabályokat minden projekt indulásakor egyeztetni kell a hatályos jogszabállyal. A jogszabályok változnak, a projektek nem." },
+
+        { "style": "21-Cimsor1", "text": "A tartószerkezetek méretezése során felhasznált szabványok" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1990 — A tartószerkezetek tervezésének alapjai" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1991 — A tartószerkezeteket érő hatások" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1992 — Betonszerkezetek tervezése" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1993 — Acélszerkezetek tervezése" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1995 — Faszerkezetek tervezése" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1996 — Falazott szerkezetek tervezése" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1997 — Geotechnikai tervezés" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "MSZ EN 1998 — Tartószerkezetek földrengésállósági tervezése" },
+        { "style": "11-Szoveg", "text": "A nemzeti mellékletek (NA) magyar kiadásai szerint." },
+
+        { "style": "21-Cimsor1", "text": "A méretezés során figyelembe vett értékek" },
+        { "style": "22-Cimsor2", "text": "Anyagminőségek" },
+        { "table": {
+            "header": ["Szerkezeti elem", "Anyagminőség", "Környezeti osztály"],
+            "rows": [
+              ["Síkalap / alaplemez", "C25/30", "XC2"],
+              ["Vasbeton pillérek, falak", "C30/37", "XC1"],
+              ["Vasbeton födémek", "C25/30", "XC1"],
+              ["Betonacél", "B500B", "—"],
+              ["Acélszerkezet", "S235 / S355", "—"],
+              ["Falazat", "—", "—"],
+              ["Faanyag", "C24", "—"]
+            ],
+            "widths": [3400, 2800, 2871]
+          }
+        },
+        { "style": "12-Infoszoveg", "text": "KITÖLTENDŐ: a nem használt sorokat törölni, a ténylegeseket pontosítani." },
+
+        { "style": "22-Cimsor2", "text": "Terhek" },
+        { "table": {
+            "header": ["Teher", "Érték", "Hivatkozás"],
+            "rows": [
+              ["Önsúly", "szerkezet szerint", "MSZ EN 1991-1-1"],
+              ["Padlórétegrend", "— kN/m²", "MSZ EN 1991-1-1"],
+              ["Hasznos teher (lakás)", "2,0 kN/m²", "MSZ EN 1991-1-1, A kategória"],
+              ["Hasznos teher (erkély)", "2,5 kN/m²", "MSZ EN 1991-1-1"],
+              ["Hóteher", "— kN/m²", "MSZ EN 1991-1-3 + NA"],
+              ["Szélteher", "— kN/m²", "MSZ EN 1991-1-4 + NA"],
+              ["Szeizmikus hatás", "— ", "MSZ EN 1998-1 + NA"]
+            ],
+            "widths": [3400, 2800, 2871]
+          }
+        },
+        { "style": "12-Infoszoveg", "text": "A nemzeti mellékletben rögzített értékek (NDP) a magyar NA szerint. A hó- és szélteher helyszínfüggő." },
+
+        { "style": "21-Cimsor1", "text": "Tartószerkezeti műszaki leírás" },
+        { "style": "22-Cimsor2", "text": "Előzmények" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: a megbízás tárgya, az építtetői igény, a kapott adatszolgáltatás (építész tervek, geotechnikai szakvélemény, felmérés) és azok dátuma." },
+
+        { "style": "22-Cimsor2", "text": "Az épület általános leírása" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: az épület rendeltetése, geometriája, szintszáma, fesztávok, a tartószerkezeti rendszer rövid összefoglalása." },
+
+        { "style": "22-Cimsor2", "text": "Talajviszonyok és alapozás" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: talajrétegződés, talajvízszint, a figyelembe vett talajtörési ellenállás, az alapozás típusa és kialakítása." },
+        { "style": "13-Megjegyzes", "text": "Ha geotechnikai szakvélemény nem áll rendelkezésre, a felvett talajparamétert feltételezésként kell kezelni és az ASSUMPTIONS naplóba felvenni." },
+
+        { "style": "22-Cimsor2", "text": "Függőleges teherhordó szerkezetek" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: pillérek, falak anyaga, mérete, raszterkiosztás." },
+
+        { "style": "22-Cimsor2", "text": "Vízszintes teherhordó szerkezetek" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: födémek típusa, vastagsága, fesztávok, gerendák." },
+
+        { "style": "22-Cimsor2", "text": "Lépcsők" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: lépcsőszerkezet kialakítása, megtámasztása." },
+
+        { "style": "22-Cimsor2", "text": "Tetőszerkezet" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: tetőszerkezet anyaga, rendszere, fesztávok." },
+
+        { "style": "22-Cimsor2", "text": "Merevítés" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: a vízszintes teherviselés rendszere — falak, magok, keretek; a merevítőelemek elrendezése." },
+
+        { "style": "22-Cimsor2", "text": "Támfalak, munkagödör" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: támfalak, munkagödör-határolás, ha van. Ha nincs, a fejezet törlendő." },
+
+        { "style": "21-Cimsor1", "text": "Összefoglalás" },
+        { "style": "11-Szoveg", "text": "Az ábrázolt tartószerkezetekkel az épület állékonysága biztosított, a szerkezet a vonatkozó szabványok szerinti követelményeknek megfelel." },
+        { "empty": 1 },
+        { "style": "47-Datum", "text": "{{PLACE}}, {{DATE_HU}}" },
+        { "empty": 2 },
+        { "style": "48-Alairas", "text": "………………………………………" },
+        { "style": "48-Alairas", "text": "{{DESIGNER}}" },
+        { "style": "48-Alairas", "text": "tartószerkezeti tervező" },
+        { "style": "48-Alairas", "text": "névjegyzéki szám: {{CHAMBER_NUMBER}}" },
+
+        { "style": "27-Melleklet", "text": "Mellékletek" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "Erőtani számítás — külön dokumentum ({{PROJECT_CODE}}-MED-ZZ-ZZ-T-S-0002)" },
+        { "style": "32-Felsorolas-gondolatjel", "text": "Tartószerkezeti tervlapok — külön tervlapsorozat" },
+        { "style": "12-Infoszoveg", "text": "Az erőtani statikai számítás terjedelme miatt külön dokumentum. Ha a hatóság egybefűzve kéri, a két dokumentumot kiadás előtt PDF-ben kell egyesíteni." }
+      ]
+    }
+  ]
+}
