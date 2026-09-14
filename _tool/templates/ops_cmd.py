@@ -405,39 +405,58 @@ def cmd_new(args, config, medtpl):
             facts = apply_aliases(facts)
             break
 
+    eng = config.get("signing_engineer", {})
+
+    def pick(*candidates):
+        """First candidate that is a real value.
+
+        "TBC" is truthy, so a plain `a or b` chain stops at an unfilled
+        PROJECT.md row and never reaches the practice default. Placeholders have
+        to be treated as absent, not as answers.
+        """
+        for c in candidates:
+            if c and str(c).strip() and str(c).strip().upper() not in ("TBC", "TBD", "—", "-"):
+                return c
+        return "TBC"
+
     today = datetime.date.today()
     hu_months = ["január", "február", "március", "április", "május", "június",
                  "július", "augusztus", "szeptember", "október", "november", "december"]
     tokens = {
         "PROJECT_CODE": facts.get("PROJECT_CODE", code),
         "PROJECT_NAME": facts.get("NAME") or facts.get("PROJECT_NAME", ""),
-        "CLIENT": facts.get("CLIENT", "TBC"),
-        "ADDRESS": facts.get("ADDRESS", "TBC"),
-        "HRSZ": facts.get("HRSZ", "TBC"),
-        "DESIGNER": args.designer or facts.get("DESIGNER", "TBC"),
-        "CHAMBER_NUMBER": args.chamber or facts.get("CHAMBER_NUMBER", "TBC"),
-        "PRACTICE_ADDRESS": config.get("practice_address", "TBC"),
+        "CLIENT": pick(facts.get("CLIENT")),
+        "ADDRESS": pick(facts.get("ADDRESS")),
+        "HRSZ": pick(facts.get("HRSZ")),
+        # Precedence: command line, then the project record, then the practice
+        # default. A project that a different engineer signs overrides it in
+        # PROJECT.md without the practice default having to change.
+        "DESIGNER": pick(args.designer, facts.get("DESIGNER"), eng.get("name")),
+        "CHAMBER_NUMBER": pick(args.chamber, facts.get("CHAMBER_NUMBER"),
+                               eng.get("chamber_number")),
+        "QUALIFICATION": pick(facts.get("QUALIFICATION"), eng.get("qualification")),
+        "PRACTICE_ADDRESS": pick(config.get("practice_address")),
         "PLACE": args.place or "Budapest",
         "DATE_HU": "%d. %s %d." % (today.year, hu_months[today.month - 1], today.day),
         "REVISION": args.revision or "S3-P01",
-        "ARCHITECT": facts.get("ARCHITECT", facts.get("ÉPÍTÉSZ", "TBC")),
+        "ARCHITECT": pick(facts.get("ARCHITECT"), facts.get("ÉPÍTÉSZ")),
         # assets/signature-<initials>.png, if one exists for this designer
-        "SIGNATURE_ASSET": (args.signature or
+        "SIGNATURE_ASSET": (args.signature or eng.get("signature_asset") or
                             "signature-%s.png" % "".join(
                                 w[0] for w in (args.designer or
                                                facts.get("DESIGNER", "")).split()
                                 if w and w[0].isalpha())[:3].lower()),
-        "BUILDING_TYPE": facts.get("BUILDING_TYPE", "TBC"),
+        "BUILDING_TYPE": pick(facts.get("BUILDING_TYPE")),
         # TBC must stay shouting - a lowercased "tbc" reads like a real value
         "BUILDING_TYPE_LOWER": (lambda v: v if v == "TBC" else v.lower())(
             facts.get("BUILDING_TYPE", "TBC")),
-        "BUILDING_CHARACTER": facts.get("BUILDING_CHARACTER", "TBC"),
+        "BUILDING_CHARACTER": pick(facts.get("BUILDING_CHARACTER")),
         # Seismic basis: stated in the muleiras because DCL vs DCM decides
         # whether ductile detailing rules apply at all.
-        "AGR": facts.get("AGR", "TBC"),
-        "GROUND_TYPE": facts.get("GROUND_TYPE", "TBC"),
-        "DUCTILITY_CLASS": facts.get("DUCTILITY_CLASS", "TBC"),
-        "Q_FACTOR": facts.get("Q_FACTOR", "TBC"),
+        "AGR": pick(facts.get("AGR")),
+        "GROUND_TYPE": pick(facts.get("GROUND_TYPE")),
+        "DUCTILITY_CLASS": pick(facts.get("DUCTILITY_CLASS")),
+        "Q_FACTOR": pick(facts.get("Q_FACTOR")),
         "DESIGNER_INITIALS": "".join(w[0] for w in
             (args.designer or facts.get("DESIGNER", "")).split() if w)[:3].upper() or "—",
         "VERSION": config["tool_version"],

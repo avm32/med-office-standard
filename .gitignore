@@ -22,3 +22,7 @@ _tool/templates/.medtpl-rt/
 _tool/templates/.medtpl-rt.docx
 # 02-Sablonok IS committed: the built templates are the point of the repo
 # for anyone who just wants to use them without running Python.
+
+# Signature images are personal. A signature that travels with a shared
+# repo is a signature anyone can use.
+_tool/templates/assets/signature-*

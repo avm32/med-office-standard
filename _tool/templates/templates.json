@@ -3,8 +3,16 @@
 
   "practice": "Medek Mernoki Iroda kft",
   "tool_version": "1.0",
-  "practice_address": "TBC",
-  "_practice_address_note": "Appears on the muleiras cover. Fill once here.",
+  "practice_address": "1025 Budapest, Cimbalom utca 18-20.",
+
+  "signing_engineer": {
+    "_note": "The signing engineer is a property of the practice, not of a project, so it lives here rather than being retyped into every PROJECT.md. A project can still override it: a DESIGNER / Kamarai nevjegyzek szama row in PROJECT.md wins over these.",
+    "name": "Dr. Medek Ákos",
+    "qualification": "okleveles építészmérnök, tartószerkezeti vezető tervező",
+    "chamber_number": "T-T / 01-3239",
+    "signature_asset": "signature-dma.png",
+    "_signature_note": "Placed only if the file exists in assets/. Deliberately not committed - a signature that travels with a shared repo is a signature anyone can use."
+  },
 
   "fonts": {
     "_note": "Arial: present on every Windows and Mac, correct Hungarian diacritics, and it is what the existing muleiras already uses for headings. Frutiger LT 45 Light was inherited from the WG master and is deliberately NOT carried over - it is Linotype-licensed, absent from Medek machines, and Word would substitute it silently while every metric shifted.",

@@ -18,7 +18,7 @@
     "MED_Hrsz": "{{HRSZ}}",
     "MED_Megbizo": "{{CLIENT}}",
     "MED_Tervezo": "{{DESIGNER}}",
-    "MED_Kepesites": "okleveles építészmérnök, tartószerkezeti vezető tervező",
+    "MED_Kepesites": "{{QUALIFICATION}}",
     "MED_KamaraiSzam": "{{CHAMBER_NUMBER}}",
     "MED_TervezoLakcim": "{{PRACTICE_ADDRESS}}",
     "MED_Epitesi_tevekenyseg": "{{BUILDING_TYPE}}",
