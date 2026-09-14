@@ -635,6 +635,8 @@ def main(argv=None):
     sp = subs.add_parser("restyle", help="push a style fix into an existing document")
     sp.add_argument("file")
     sp.add_argument("--dry-run", action="store_true")
+    sp.add_argument("--remap", action="store_true",
+                    help="rewrite style references when Word has regenerated the ids")
     sp.set_defaults(func=ops("cmd_restyle"))
 
     sp = subs.add_parser("slim", help="report and drop unreferenced media")

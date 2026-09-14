@@ -37,6 +37,48 @@ def read_provenance(path, prop):
     return m.group(1) if m else None
 
 
+def style_id_map(doc_styles_xml, master_styles_xml):
+    """Map the document's styleIds onto the master's, matching on display name.
+
+    Word REGENERATES styleId from the display name when it saves, stripping
+    non-ASCII: "21 - Cimsor 1" becomes 21-Cmsor1, not the 21-Cimsor1 the master
+    wrote. So a document the user has opened and saved no longer shares ids with
+    the master, and replacing styles.xml alone would leave every paragraph
+    pointing at an id that does not exist.
+
+    The display name survives, so it is the reliable key.
+    """
+    def pairs(xml):
+        out = {}
+        for m in re.finditer(r'<w:style [^>]*w:styleId="([^"]+)".*?</w:style>', xml, re.S):
+            name = re.search(r'<w:name w:val="([^"]*)"', m.group(0))
+            if name:
+                out[m.group(1)] = name.group(1)
+        return out
+
+    doc = pairs(doc_styles_xml)
+    master_by_name = {v: k for k, v in pairs(master_styles_xml).items()}
+    mapping = {}
+    for sid, name in doc.items():
+        target = master_by_name.get(name)
+        if target and target != sid:
+            mapping[sid] = target
+    return mapping
+
+
+def remap_references(xml, mapping):
+    """Rewrite pStyle / rStyle / tblStyle references through the id map."""
+    n = [0]
+    def sub(m):
+        old = m.group(2)
+        if old in mapping:
+            n[0] += 1
+            return '%s w:val="%s"' % (m.group(1), mapping[old])
+        return m.group(0)
+    xml = re.sub(r'(<w:(?:pStyle|rStyle|tblStyle)) w:val="([^"]+)"', sub, xml)
+    return xml, n[0]
+
+
 def cmd_restyle(args, config, medtpl):
     """Replace tool-owned parts in an existing document. Text is untouched.
 
@@ -58,6 +100,24 @@ def cmd_restyle(args, config, medtpl):
     with zipfile.ZipFile(target) as zf:
         parts = {n: zf.read(n) for n in zf.namelist() if not n.endswith("/")}
 
+    # Word may have rewritten the styleIds since this document was built.
+    doc_styles = parts.get("word/styles.xml", b"").decode("utf-8", "replace")
+    master_styles = (master / "word/styles.xml").read_text(encoding="utf-8")
+    idmap = style_id_map(doc_styles, master_styles)
+
+    if idmap and not args.remap:
+        print("REFUSING: this document's style ids no longer match the master.")
+        print("  Word regenerates styleId from the display name when it saves,")
+        print("  stripping accents - so %d styles differ, for example:" % len(idmap))
+        for old, new in sorted(idmap.items())[:4]:
+            print("      %-26s -> %s" % (old, new))
+        print("  Replacing styles.xml alone would leave every paragraph pointing")
+        print("  at an id that no longer exists, and the document would lose its")
+        print("  formatting entirely.")
+        print("  Re-run with --remap to rewrite the references by style NAME,")
+        print("  which survives Word's rewrite. Text is still not touched.")
+        return 1
+
     replaced = []
     for name in TOOL_OWNED:
         src = master / name
@@ -66,9 +126,22 @@ def cmd_restyle(args, config, medtpl):
                 replaced.append(name)
             parts[name] = src.read_bytes()
 
-    as_template = target.suffix.lower() == ".dotx"
-    parts["[Content_Types].xml"] = build_cmd.gen_content_types(
-        parts.keys(), as_template, medtpl.TEMPLATE_CT, medtpl.DOCUMENT_CT)
+    remapped = 0
+    if idmap and args.remap:
+        for name in list(parts):
+            if name.endswith(".xml") and (name.startswith("word/document")
+                                          or name.startswith("word/header")
+                                          or name.startswith("word/footer")):
+                xml = parts[name].decode("utf-8", "replace")
+                xml, n = remap_references(xml, idmap)
+                parts[name] = xml.encode("utf-8")
+                remapped += n
+
+    # [Content_Types].xml is deliberately LEFT ALONE. restyle only replaces
+    # parts that the document already declares, so there is nothing to add -
+    # and regenerating it from a fixed list silently dropped the declarations
+    # for parts the user had added themselves (an embedded .xls worksheet and
+    # an .emf image), which made Word reject the whole file.
 
     if in_place:
         out = target
@@ -90,6 +163,8 @@ def cmd_restyle(args, config, medtpl):
         print("  Compare the two before replacing anything. A document this tool did")
         print("  not create may rely on styles or direct formatting it knows nothing of.")
     print("  parts replaced: %s" % (", ".join(replaced) or "none - already current"))
+    if remapped:
+        print("  style references remapped: %d (ids only - no text changed)" % remapped)
     return 0
 
 
