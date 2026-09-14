@@ -4,7 +4,11 @@
   "logo": "assets/med-logo.jpg",
   "logo_h_cm": 1.1,
   "logo_w_cm": 1.1,
-  "header_right": "",
+  "header_lines": [
+    { "text": "Medek Mérnöki Iroda Kft.", "bold": true, "style": "12-Infoszoveg" },
+    { "text": "1025 Budapest, Cimbalom utca 18-20. · medek.kft@medek.hu · +36 30 231 0746", "style": "12-Infoszoveg" },
+    { "text": "Tartószerkezeti műszaki leírás · {{PROJECT_CODE}} {{PROJECT_NAME}} · {{REVISION}}", "style": "12-Infoszoveg" }
+  ],
 
   "docprops": {
     "_note": "Read by DOCPROPERTY fields. In Word: File > Info > Properties > Advanced > Custom. After editing, Ctrl+A then F9 refreshes every instance.",
@@ -58,6 +62,24 @@
       ]
     },
 
+    {
+      "_note": "Revision record. Kept on its own page after the cover so the issue history is the first thing a reviewer sees, and so it survives being read as a PDF where the file name may be lost.",
+      "content": [
+        { "style": "21-Cimsor1", "text": "Változáskövetés" },
+        { "table": {
+            "header": ["Rev.", "Dátum", "Leírás", "Készítette", "Ellenőrizte"],
+            "rows": [
+              ["P01", "{{DATE_HU}}", "Első kiadás — egyeztetésre", "{{DESIGNER_INITIALS}}", ""],
+              ["", "", "", "", ""],
+              ["", "", "", "", ""]
+            ],
+            "widths": [800, 1600, 3600, 1600, 1471]
+          }
+        },
+        { "style": "17-Tablazat-felirat", "text": "Változáskövetés" },
+        { "style": "12-Infoszoveg", "text": "A dokumentum állapotát és revízióját a fájlnév is hordozza (pl. -S3-P01). S = megosztott, nem szerződéses; A = jóváhagyott. A revízió minden kiadáskor eggyel nő; a sorokat soha ne írd felül, mindig új sort adj hozzá." }
+      ]
+    },
     {
       "_note": "Tartalomjegyzék. Field result deliberately left empty - a stale rendered TOC is the trap the WG reference warns about. F9 in Word populates it.",
       "content": [

@@ -294,6 +294,35 @@ def parse_project_md(path):
     return out
 
 
+# PROJECT.md is written by a person, in Hungarian, with whatever row labels
+# suit the project. These map the labels actually seen onto the tokens the
+# layout uses, so the file stays natural to write.
+FACT_ALIASES = {
+    "HELYRAJZI_SZÁM": "HRSZ",
+    "HELYRAJZI_SZAM": "HRSZ",
+    "HRSZ.": "HRSZ",
+    "TERVEZŐ": "DESIGNER",
+    "TERVEZO": "DESIGNER",
+    "KAMARAI_NÉVJEGYZÉK_SZÁMA": "CHAMBER_NUMBER",
+    "KAMARAI_SZÁM": "CHAMBER_NUMBER",
+    "CHAMBER_NUMBER": "CHAMBER_NUMBER",
+    "MEGBÍZÓ": "CLIENT",
+    "CÍM": "ADDRESS",
+}
+
+
+def apply_aliases(facts):
+    for src, dest in FACT_ALIASES.items():
+        if src in facts and not facts.get(dest):
+            facts[dest] = facts[src]
+    # "162163 (telek 797 m2)" -> "162163": the parenthetical is a site note,
+    # not part of the land registry number that goes on the cover.
+    hrsz = facts.get("HRSZ", "")
+    if hrsz:
+        facts["HRSZ"] = re.split(r"[\s(]", hrsz.strip(), 1)[0].rstrip(".,")
+    return facts
+
+
 def cmd_new(args, config, medtpl):
     """Start a real document in a project folder, named per the container ID."""
     project = Path(args.project)
@@ -305,7 +334,7 @@ def cmd_new(args, config, medtpl):
     facts = {}
     if notes.is_dir():
         for cand in notes.glob("*-PROJECT.md"):
-            facts = parse_project_md(cand)
+            facts = apply_aliases(parse_project_md(cand))
             break
 
     today = datetime.date.today()
@@ -323,6 +352,8 @@ def cmd_new(args, config, medtpl):
         "PLACE": args.place or "Budapest",
         "DATE_HU": "%d. %s %d." % (today.year, hu_months[today.month - 1], today.day),
         "REVISION": args.revision or "S3-P01",
+        "DESIGNER_INITIALS": "".join(w[0] for w in
+            (args.designer or facts.get("DESIGNER", "")).split() if w)[:3].upper() or "—",
         "VERSION": config["tool_version"],
         "DATE": today.isoformat(),
     }

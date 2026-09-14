@@ -257,16 +257,63 @@ def render_document(layout, config, ctx):
             % (NS, "".join(body))).encode("utf-8")
 
 
-def render_header(ctx, with_logo=True, right_text=""):
-    content = ""
+def render_header(ctx, with_logo=True, right_text="", lines=None):
+    """Practice identification left, logo right.
+
+    Built as a borderless two-cell table rather than tab stops. Tabs work for a
+    single line, but the left block here is several lines (practice, address,
+    document name) while the logo must stay on the first - a table is the only
+    structure that keeps those independent. Borders are explicitly set to none:
+    inheriting Table Grid would draw a box round the header.
+    """
     rel = ctx.get("logo_rel_header") or ctx.get("logo_rel")
-    if with_logo and rel:
-        h = ctx.get("logo_h_cm", 1.6)
-        content += picture(rel, ctx.get("logo_w_cm", h), h,
-                           "Medek logo", ctx.next_id())
+    left_w, right_w = 7200, 1871          # of the 9071 twip text width
+
+    left = ""
+    for spec in (lines or []):
+        left += para(spec.get("style", "12-Infoszoveg"),
+                     run(substitute(spec.get("text", ""), ctx),
+                         bold=spec.get("bold", False),
+                         size=spec.get("size")))
     if right_text:
-        content += run("\t" + substitute(right_text, ctx))
-    return (DECL + "<w:hdr %s>%s</w:hdr>\n" % (NS, para("Header", content))).encode("utf-8")
+        left += para("12-Infoszoveg", run(substitute(right_text, ctx)))
+    if not left:
+        left = para("Header")
+
+    right = para("Header")
+    if with_logo and rel:
+        h = ctx.get("logo_h_cm", 1.1)
+        right = para("Header",
+                     picture(rel, ctx.get("logo_w_cm", h), h, "Medek logo",
+                             ctx.next_id()),
+                     '<w:jc w:val="right"/>')
+
+    cell = ('<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/>'
+            '<w:vAlign w:val="%s"/></w:tcPr>%s</w:tc>')
+    tbl = (
+        '<w:tbl><w:tblPr>'
+        '<w:tblW w:w="9071" w:type="dxa"/>'
+        '<w:tblBorders>'
+        '<w:top w:val="none" w:sz="0" w:color="auto"/>'
+        '<w:left w:val="none" w:sz="0" w:color="auto"/>'
+        '<w:bottom w:val="none" w:sz="0" w:color="auto"/>'
+        '<w:right w:val="none" w:sz="0" w:color="auto"/>'
+        '<w:insideH w:val="none" w:sz="0" w:color="auto"/>'
+        '<w:insideV w:val="none" w:sz="0" w:color="auto"/>'
+        '</w:tblBorders>'
+        '<w:tblCellMar>'
+        '<w:left w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/>'
+        '</w:tblCellMar>'
+        '</w:tblPr>'
+        '<w:tblGrid><w:gridCol w:w="%d"/><w:gridCol w:w="%d"/></w:tblGrid>'
+        '<w:tr>%s%s</w:tr>'
+        '</w:tbl>' % (left_w, right_w,
+                      cell % (left_w, "center", left),
+                      cell % (right_w, "center", right))
+    )
+    # A table may not be the last element in a header part.
+    return (DECL + "<w:hdr %s>%s%s</w:hdr>\n"
+            % (NS, tbl, para("Header"))).encode("utf-8")
 
 
 def render_footer_lines(ctx, lines, page_numbers=True):

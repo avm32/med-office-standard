@@ -203,7 +203,8 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
     else:
         parts["word/document.xml"] = render.render_document(layout, config, ctx)
         parts["word/header1.xml"] = render.render_header(
-            ctx, with_logo=bool(logo), right_text=layout.get("header_right", ""))
+            ctx, with_logo=bool(logo), right_text=layout.get("header_right", ""),
+            lines=layout.get("header_lines"))
         if header_rels:
             parts["word/_rels/header1.xml.rels"] = header_rels
         if layout.get("footer_lines"):
