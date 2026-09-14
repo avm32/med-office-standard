@@ -454,7 +454,22 @@ def check(root, config, verbose=True):
         else:
             ok("content types: %d overrides, each part declared once" % len(overrides))
 
-    # 9. relationships resolve
+    # 9. no unsubstituted tokens
+    # A literal {{TOKEN}} means a value never got filled and shipped as braces.
+    # Table cells were emitted raw for a while and leaked six of them.
+    leaks = []
+    for part in part_paths(root):
+        if not part.endswith(".xml"):
+            continue
+        blob = (root / part).read_bytes().decode("utf-8", "replace")
+        for tok in set(re.findall(r"\{\{[A-Z_]+\}\}", blob)):
+            leaks.append("%s in %s" % (tok, part))
+    if leaks:
+        fail("no unsubstituted tokens", "; ".join(sorted(leaks)[:6]))
+    else:
+        ok("no unsubstituted {{TOKEN}} left in any part")
+
+    # 10. relationships resolve
     rel_problems = []
     for rels_path in root.rglob("*.rels"):
         rel_root = ET.fromstring(rels_path.read_bytes())
@@ -471,7 +486,7 @@ def check(root, config, verbose=True):
     else:
         ok("every relationship target exists")
 
-    # 10. per-part relationship ids resolve
+    # 11. per-part relationship ids resolve
     # Relationship ids are scoped to the part that uses them: an r:embed inside
     # header1.xml resolves against word/_rels/header1.xml.rels, never against
     # document.xml.rels. Declaring it in the wrong place still opens in Word -

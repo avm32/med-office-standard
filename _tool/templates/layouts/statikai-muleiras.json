@@ -26,7 +26,11 @@
     "MED_Munkaresz": "Építési engedélyezési terv tartószerkezeti fejezete",
     "MED_Epitesz": "{{ARCHITECT}}",
     "MED_Epulet_tipus": "{{BUILDING_TYPE_LOWER}}",
-    "MED_Datum": "{{PLACE}}, {{DATE_HU}}"
+    "MED_Datum": "{{PLACE}}, {{DATE_HU}}",
+    "MED_Agr": "{{AGR}}",
+    "MED_Talajosztaly": "{{GROUND_TYPE}}",
+    "MED_Duktilitas": "{{DUCTILITY_CLASS}}",
+    "MED_Q": "{{Q_FACTOR}}"
   },
 
   "footer_lines": [
@@ -246,11 +250,11 @@
         { "table": {
             "header": ["Paraméter", "Felvett érték", "Hivatkozás"],
             "rows": [
-              ["Referencia talajgyorsulás, agR", "{{AGR}}", "MSZ EN 1998-1 NA, zónatérkép"],
-              ["Talajosztály", "{{GROUND_TYPE}}", "talajmechanikai szakvélemény"],
+              ["Referencia talajgyorsulás, agR", { "docprop": "MED_Agr" }, "MSZ EN 1998-1 NA, zónatérkép"],
+              ["Talajosztály", { "docprop": "MED_Talajosztaly" }, "talajmechanikai szakvélemény"],
               ["Jelentőségi osztály", "II (γI = 1,0)", "MSZ EN 1998-1, 4.2.5"],
-              ["Duktilitási osztály", "{{DUCTILITY_CLASS}}", "MSZ EN 1998-1, 5.2.1"],
-              ["Viselkedési tényező, q", "{{Q_FACTOR}}", "MSZ EN 1998-1, 5.2.2"],
+              ["Duktilitási osztály", { "docprop": "MED_Duktilitas" }, "MSZ EN 1998-1, 5.2.1"],
+              ["Viselkedési tényező, q", { "docprop": "MED_Q" }, "MSZ EN 1998-1, 5.2.2"],
               ["Számítási módszer", "módusanalízis válaszspektrummal", "MSZ EN 1998-1, 4.3.3.3"]
             ],
             "widths": [3400, 2600, 3071]

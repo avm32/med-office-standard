@@ -10,6 +10,21 @@
 # restored rather than left changed.
 
 $ErrorActionPreference = "Stop"
+
+# Refuse if the document is open in Word. Word leaves a ~$<name> owner file
+# beside an open document; editing it anyway hangs the COM call on a dialog
+# that has no visible window, and leaves an orphaned WINWORD.EXE holding the
+# file. Better to stop and say so.
+$dir = [System.IO.Path]::GetDirectoryName((Resolve-Path $Doc).Path)
+$base = [System.IO.Path]::GetFileName((Resolve-Path $Doc).Path)
+$owner = Join-Path $dir ("~$" + $base.Substring([Math]::Min(2, $base.Length)))
+if (Test-Path $owner) {
+    Write-Output "REFUSING: the document appears to be open in Word (owner file present)."
+    Write-Output "  Close it first. Editing an open document hangs the COM call and"
+    Write-Output "  risks losing whatever is unsaved in that Word session."
+    exit 2
+}
+
 $word = $null
 $document = $null
 $originalUser = $null

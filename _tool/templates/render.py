@@ -87,7 +87,7 @@ def page_break():
     return '<w:p><w:r><w:br w:type="page"/></w:r></w:p>'
 
 
-def table(spec):
+def table(spec, ctx=None):
     style = spec.get("style", "TableGrid")
     widths = spec.get("widths")
     rows = spec.get("rows", [])
@@ -120,6 +120,16 @@ def table(spec):
     # grey band prints as a muddy grey on office printers.
     HEADER_SHADE = spec.get("header_shade", "FFFFFF")
 
+    def cell_content(cell, bold):
+        """A cell is either plain text (token-substituted) or a DOCPROPERTY
+        field. Cells were previously emitted raw, so any {{TOKEN}} inside a
+        table shipped as literal braces."""
+        if isinstance(cell, dict):
+            label = cell.get("label", "")
+            out = run(label + " ", bold=bold) if label else ""
+            return out + docprop(cell["docprop"], ctx)
+        return run(substitute(str(cell), ctx or {}), bold=bold)
+
     def emit_row(cells, style_name, bold, is_header):
         trpr = "<w:trPr><w:tblHeader/></w:trPr>" if is_header else ""
         extra_tc = ""
@@ -133,7 +143,7 @@ def table(spec):
             tds.append(
                 '<w:tc><w:tcPr><w:tcW w:w="%d" w:type="dxa"/>%s</w:tcPr>%s</w:tc>'
                 % (widths[i] if i < len(widths) else widths[-1], extra_tc,
-                   para(style_name, run(cell, bold=bold))))
+                   para(style_name, cell_content(cell, bold))))
         out.append("<w:tr>%s%s</w:tr>" % (trpr, "".join(tds)))
 
     if header:
@@ -239,7 +249,7 @@ def render_block(block, ctx):
     if "pagebreak" in block:
         return page_break()
     if "table" in block:
-        return table(block["table"])
+        return table(block["table"], ctx)
     if "signature" in block:
         # A signature image is personal, so it is never bundled with the shared
         # template - it is pulled from assets/ only when one is present for the
