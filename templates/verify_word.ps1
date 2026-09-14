@@ -33,7 +33,7 @@ try {
 
     # Hungarian style names must be present and reachable by name
     $wanted = @('11 - Szöveg', '21 - Címsor 1', '22 - Címsor 2', '15 - Ábra',
-                '14 - Ábra/Táblázat felirat', '48 - Aláírás', '49 - Nyilatkozat',
+                '14 - Ábra felirat', '17 - Táblázat felirat', '48 - Aláírás', '49 - Nyilatkozat',
                 '27 - Melléklet', '31 - Felsorolás pont', '16 - Táblázatcím')
     $missing = @()
     foreach ($n in $wanted) {

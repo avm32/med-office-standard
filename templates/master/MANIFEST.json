@@ -3,13 +3,13 @@
   "source": "C:\\Users\\PC\\Documents\\Projects\\XX_WG\\00-Vorlagen\\_vorlage-master.docx",
   "parts": {
     "[Content_Types].xml": {
-      "sha256": "e4d7e14380def0782eebe8dfbc3a3780eb6a03d668d5739e929cced979445cda",
-      "bytes": 2119,
+      "sha256": "947e4f39179e6068309d603a5b99946f366537ae85ee56aa417065f033d19553",
+      "bytes": 2247,
       "format": "pretty"
     },
     "_rels/.rels": {
-      "sha256": "f86f1893aecb510b25f41025ced61dd4a921d4188a6056e2f3fb17af8545e8e6",
-      "bytes": 600,
+      "sha256": "73261511aab035e5e744581c84ce4552064ef4ca949ca2a015681098c3919d77",
+      "bytes": 750,
       "format": "verbatim"
     },
     "docProps/app.xml": {
@@ -20,6 +20,11 @@
     "docProps/core.xml": {
       "sha256": "007afa1a0663f7dcb9d8d11e4a7aebaa9e3b7d026e4555c8ac201b90ff860e7b",
       "bytes": 334,
+      "format": "verbatim"
+    },
+    "docProps/custom.xml": {
+      "sha256": "48777ef549c98c2ceecda8d6333392cb6c2655be62a9c6af9c6c1cff03539d17",
+      "bytes": 242,
       "format": "verbatim"
     },
     "word/_rels/document.xml.rels": {
@@ -58,8 +63,8 @@
       "format": "verbatim"
     },
     "word/numbering.xml": {
-      "sha256": "c347a6a462b20bf2dea04c153e03a461363b0c051987f7c6b347bae922706bf1",
-      "bytes": 96170,
+      "sha256": "ec9360a6541f9e6c324abd398afbc1a1ae051dc4372650e1ed06e63cc70806d0",
+      "bytes": 97072,
       "format": "pretty"
     },
     "word/settings.xml": {
@@ -68,8 +73,8 @@
       "format": "pretty"
     },
     "word/styles.xml": {
-      "sha256": "c0f4505b224c2de9be60fbd95ca0e62a0a43ee96db1e6391e514a6500b4a4d96",
-      "bytes": 60872,
+      "sha256": "9328cda4398686f1fb971749ea846e2f6efa5fded968bb2ab7b7e245d673edd8",
+      "bytes": 61263,
       "format": "pretty"
     },
     "word/theme/theme1.xml": {

@@ -1075,13 +1075,17 @@
       <w:lang w:val="hu-HU" w:eastAsia="hu-HU"/>
     </w:rPr>
   </w:style>
-  <w:style w:type="paragraph" w:customStyle="1" w:styleId="14-Abra-Tablazat-felirat">
-    <w:name w:val="14 - Ábra/Táblázat felirat"/>
+  <w:style w:type="paragraph" w:customStyle="1" w:styleId="14-Abra-felirat">
+    <w:name w:val="14 - Ábra felirat"/>
     <w:basedOn w:val="10-Alap"/>
     <w:next w:val="11-Szoveg"/>
     <w:qFormat/>
     <w:rsid w:val="00EB6A71"/>
     <w:pPr>
+      <w:numPr>
+        <w:ilvl w:val="0"/>
+        <w:numId w:val="90"/>
+      </w:numPr>
       <w:spacing w:line="160" w:lineRule="exact"/>
       <w:jc w:val="right"/>
     </w:pPr>
@@ -1220,7 +1224,7 @@
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="15-Abra">
     <w:name w:val="15 - Ábra"/>
     <w:basedOn w:val="18-Tablazatszoveg"/>
-    <w:next w:val="14-Abra-Tablazat-felirat"/>
+    <w:next w:val="14-Abra-felirat"/>
     <w:qFormat/>
     <w:rsid w:val="00833A99"/>
     <w:pPr>
@@ -1437,6 +1441,17 @@
     <w:pPr>
       <w:keepNext/>
       <w:spacing w:before="480" w:line="260" w:lineRule="atLeast"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:type="paragraph" w:customStyle="1" w:styleId="17-Tablazat-felirat">
+    <w:name w:val="17 - Táblázat felirat"/>
+    <w:basedOn w:val="14-Abra-felirat"/>
+    <w:next w:val="11-Szoveg"/>
+    <w:pPr>
+      <w:numPr>
+        <w:ilvl w:val="0"/>
+        <w:numId w:val="91"/>
+      </w:numPr>
     </w:pPr>
   </w:style>
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="49-Nyilatkozat">

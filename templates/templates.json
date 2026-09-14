@@ -34,12 +34,13 @@
     "exact_allowed": [
       "21-Cimsor1",
       "22-Cimsor2",
-      "14-Abra-Tablazat-felirat",
+      "14-Abra-felirat",
+      "17-Tablazat-felirat",
       "Caption",
       "Heading1",
       "Heading2"
     ],
-    "_caption_note": "Caption is on this list as a consequence of deliberately retuning it to match 14 - Abra/Tablazat felirat, so that Word's own Insert > Caption produces the office look. It inherits that style's exact 160 spacing. Correct: a caption is text beneath a figure, never a container for one.",
+    "_caption_note": "Caption is on this list as a consequence of deliberately retuning it to match 14 - Abra felirat, so that Word's own Insert > Caption produces the office look. It inherits that style's exact 160 spacing. Correct: a caption is text beneath a figure, never a container for one.",
     "_exact_allowed_note": "Fixed line boxes are kept only where a fixed box is the typographic point and an inline image would be a user error anyway: chapter titles and the figure/table caption. Everything a user might plausibly paste a screenshot into is atLeast.",
     "_normal_note": "Normal moves from exact 300 to atLeast 300. It renders pixel-identically for ordinary text - the natural line box for 10-12pt Arial is well under 15pt - and differs only where exact would have clipped. If a layout ever needed exact to hold a baseline grid this would break it; nothing in a muleiras needs a baseline grid, so this is a deliberate trade, recorded here rather than made silently."
   },

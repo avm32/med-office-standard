@@ -2,8 +2,8 @@
   "_note": "Style catalogue. Every style rendered with its own name as the text, so a glance shows whether the whole set survived a change. This is the verification instrument - it turns the manual Word pass from an hour into five minutes. Build it after every change to master/.",
 
   "logo": "assets/med-logo.jpg",
-  "logo_h_cm": 1.6,
-  "logo_w_cm": 1.6,
+  "logo_h_cm": 1.1,
+  "logo_w_cm": 1.1,
   "header_right": "Stíluskatalógus",
   "footer_left": "Medek Mérnöki Iroda Kft.",
 
@@ -39,7 +39,7 @@
         { "pagebreak": true },
 
         { "style": "21-Cimsor1", "text": "Táblázatok és ábrák" },
-        { "style": "16-Tablazatcim", "text": "16 - Táblázatcím" },
+        { "style": "16-Tablazatcim", "text": "16 - Táblázatcím (a táblázat FÖLÖTT)" },
         { "table": {
             "header": ["Szerkezeti elem", "Anyagminőség", "Megjegyzés"],
             "rows": [
@@ -50,11 +50,12 @@
             "widths": [3400, 3000, 2671]
           }
         },
+        { "style": "17-Tablazat-felirat", "text": "Minta táblázat felirata — külön sorozat az ábráktól" },
         { "style": "12-Infoszoveg", "text": "A táblázat a 16.0 cm-es szövegtükörhöz igazodik. A WG sablon 13.0 cm-es tükrébe a hat oszlopnál szélesebb táblázatok nem fértek be." },
 
         { "empty": 1 },
         { "image": "logo", "style": "15-Abra", "width_cm": 3.0, "height_cm": 3.0, "name": "Példa ábra" },
-        { "style": "14-Abra-Tablazat-felirat", "text": "14 - Ábra/Táblázat felirat — a 15 - Ábra után Enterrel automatikusan ide kerül a kurzor." },
+        { "style": "14-Abra-felirat", "text": "Minta ábra felirata — a sorszám automatikus" },
         { "style": "12-Infoszoveg", "text": "A 15 - Ábra stílus keepNext-et kapott, így a kép és a felirata nem szakad el egymástól oldaltöréskor." },
 
         { "style": "21-Cimsor1", "text": "Képbeillesztési próba" },

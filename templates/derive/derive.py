@@ -251,6 +251,83 @@ def transform_styles(root, mapping, config, report):
     return idmap, dropped
 
 
+def add_caption_numbering(num_root, styles_root, mapping, report):
+    """Attach style-linked automatic numbering to the caption styles.
+
+    A <w:pStyle> back-link inside the numbering level is what makes Word number
+    a paragraph the moment it is given that style - no Insert > Caption dialog,
+    no per-document setup. The style also carries a matching <w:numPr> so the
+    link holds from both directions.
+
+    Trade-off, recorded deliberately: Word's own Insert > Caption uses SEQ
+    fields instead, so a caption inserted that way starts its own count. Pick
+    one convention per document. Style-linked was chosen because applying a
+    style is the smoother action, which is what the review asked for.
+    """
+    spec = {k: v for k, v in mapping.get("add_numbering", {}).items()
+            if not k.startswith("_")}
+    first_num = num_root.find(w("num"))
+    for sid, cfg in spec.items():
+        # CT_Numbering is a sequence: every w:abstractNum must precede every
+        # w:num. Appending both at the end interleaves them, and Word then
+        # silently fails to resolve the numbering - the style applies but no
+        # number appears.
+        abstract = etree.Element(w("abstractNum"))
+        if first_num is not None:
+            first_num.addprevious(abstract)
+        else:
+            num_root.append(abstract)
+        abstract.set(w("abstractNumId"), str(cfg["abstractNumId"]))
+        mlt = etree.SubElement(abstract, w("multiLevelType"))
+        mlt.set(w("val"), "singleLevel")
+        lvl = etree.SubElement(abstract, w("lvl"))
+        lvl.set(w("ilvl"), "0")
+        for tag, val in (("start", "1"), ("numFmt", "decimal"),
+                         ("pStyle", sid), ("lvlText", cfg["lvlText"]),
+                         ("lvlJc", "left")):
+            el = etree.SubElement(lvl, w(tag))
+            el.set(w("val"), val)
+        ppr = etree.SubElement(lvl, w("pPr"))
+        ind = etree.SubElement(ppr, w("ind"))
+        ind.set(w("left"), "0")
+        ind.set(w("firstLine"), "0")
+
+        num = etree.SubElement(num_root, w("num"))   # nums go at the end
+        num.set(w("numId"), str(cfg["numId"]))
+        ref = etree.SubElement(num, w("abstractNumId"))
+        ref.set(w("val"), str(cfg["abstractNumId"]))
+
+        # matching numPr on the style itself
+        for st in styles_root.findall(w("style")):
+            if st.get(w("styleId")) == sid:
+                sppr = ensure_child(st, "pPr", STYLE_ORDER)
+                numpr = ensure_child(sppr, "numPr", PPR_ORDER)
+                for tag, val in (("ilvl", "0"), ("numId", str(cfg["numId"]))):
+                    el = ensure_child(numpr, tag, ["ilvl", "numId"])
+                    el.set(w("val"), val)
+                break
+        report.append("  num   %-24s auto-numbers as %r" % (sid, cfg["lvlText"]))
+
+
+def retext_numbering(root, mapping, report):
+    """Rewrite lvlText values that carry German words.
+
+    'Anhang %1' would prefix every appendix heading with the German for annex.
+    Stripping it to a bare number makes the style language-neutral - the heading
+    text itself already says what the section is.
+    """
+    rules = {k: v for k, v in mapping.get("numbering_text", {}).items()
+             if not k.startswith("_")}
+    n = 0
+    for el in root.iter(w("lvlText")):
+        val = el.get(w("val"))
+        if val in rules:
+            el.set(w("val"), rules[val])
+            report.append("  lvl   lvlText %r -> %r" % (val, rules[val]))
+            n += 1
+    return n
+
+
 def drop_style_refs(root, dropped):
     """Remove references to styles that no longer exist.
 
@@ -428,7 +505,11 @@ def gen_root_rels():
             '  <Relationship Id="rId1" Type="%sofficeDocument" Target="word/document.xml"/>\n'
             '  <Relationship Id="rId2" Type="%score-properties" Target="docProps/core.xml"/>\n'
             '  <Relationship Id="rId3" Type="%sextended-properties" Target="docProps/app.xml"/>\n'
-            '</Relationships>\n' % (PR, base, pkg, base)).encode("utf-8")
+            # Without this, Word ignores docProps/custom.xml completely: the
+            # part sits in the package but every DOCPROPERTY field resolves to
+            # nothing and CustomDocumentProperties reports zero.
+            '  <Relationship Id="rId4" Type="%scustom-properties" Target="docProps/custom.xml"/>\n'
+            '</Relationships>\n' % (PR, base, pkg, base, base)).encode("utf-8")
 
 
 def gen_content_types(parts, as_template=False):
@@ -474,6 +555,16 @@ def gen_core_props():
             '  <dc:creator>Medek Mernoki Iroda kft</dc:creator>\n'
             '  <dc:language>hu-HU</dc:language>\n'
             '</cp:coreProperties>\n' % (cp, dc)).encode("utf-8")
+
+
+def gen_empty_custom_props():
+    """Placeholder so the package relationship has a target. build replaces this
+    with the real document properties."""
+    ns = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+    vt = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            '<Properties xmlns="%s" xmlns:vt="%s"></Properties>\n'
+            % (ns, vt)).encode("utf-8")
 
 
 def gen_app_props():
@@ -541,6 +632,10 @@ def main():
         root = parse(zf.read(part))
         refs = rewrite_refs(root, idmap)
         gone = drop_style_refs(root, dropped)
+        if part == "word/numbering.xml":
+            retext_numbering(root, mapping, report)
+            add_caption_numbering(root, styles_root, mapping, report)
+            out["word/styles.xml"] = serialise(styles_root)  # numPr was added
         fonts = retarget_rfonts(root, font)
         set_lang(root, lang)
         if part in ("word/fontTable.xml", "word/theme/theme1.xml"):
@@ -564,6 +659,7 @@ def main():
     out["_rels/.rels"] = gen_root_rels()
     out["docProps/core.xml"] = gen_core_props()
     out["docProps/app.xml"] = gen_app_props()
+    out["docProps/custom.xml"] = gen_empty_custom_props()
     # sorted(set(...)): a duplicate PartName override is invalid OOXML and Word
     # rejects the package outright.
     out["[Content_Types].xml"] = gen_content_types(sorted(set(out.keys())))

@@ -26,9 +26,10 @@ oldalsávjuk — azt nem vettük át.
 | 11 - Szöveg | `11-Szoveg` | 10-Alap | — | line 260 atLeast, before 100, after 0 |
 | 12 - Infoszöveg | `12-Infoszoveg` | 10-Alap | 11-Szoveg | line 240 atLeast, before 80, after 0 |
 | 13 - Megjegyzés | `13-Megjegyzes` | 12-Infoszoveg | 11-Szoveg | — |
-| 14 - Ábra/Táblázat felirat | `14-Abra-Tablazat-felirat` | 10-Alap | 11-Szoveg | line 160 exact, before 0, after 0 |
-| 15 - Ábra | `15-Abra` | 18-Tablazatszoveg | 14-Abra-Tablazat-felirat | line 240 auto, before 240, after 0 |
+| 14 - Ábra felirat | `14-Abra-felirat` | 10-Alap | 11-Szoveg | line 160 exact, before 0, after 0 |
+| 15 - Ábra | `15-Abra` | 18-Tablazatszoveg | 14-Abra-felirat | line 240 auto, before 240, after 0 |
 | 16 - Táblázatcím | `16-Tablazatcim` | 11-Szoveg | 11-Szoveg | line - -, before 40, after 40 |
+| 17 - Táblázat felirat | `17-Tablazat-felirat` | 14-Abra-felirat | 11-Szoveg | — |
 | 18 - Táblázatszöveg | `18-Tablazatszoveg` | 11-Szoveg | — | line - -, before 0, after 0 |
 | 21 - Címsor 1 | `21-Cimsor1` | 10-Alap | 11-Szoveg | line 400 exact, before 0, after 240 |
 | 22 - Címsor 2 | `22-Cimsor2` | 10-Alap | 11-Szoveg | line 320 exact, before 360, after 120 |
@@ -65,7 +66,8 @@ kötött sormagasság tipográfiai szándék és kép amúgy sem kerül bele:
 
 - `21-Cimsor1`
 - `22-Cimsor2`
-- `14-Abra-Tablazat-felirat`
+- `14-Abra-felirat`
+- `17-Tablazat-felirat`
 - `Caption`
 - `Heading1`
 - `Heading2`

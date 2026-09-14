@@ -11,7 +11,7 @@
     "11-Text":                 { "id": "11-Szoveg",                  "name": "11 - Szöveg" },
     "12-Infotext":             { "id": "12-Infoszoveg",              "name": "12 - Infoszöveg" },
     "13-Hinweis":              { "id": "13-Megjegyzes",              "name": "13 - Megjegyzés" },
-    "14-AbbildungTabellenbez": { "id": "14-Abra-Tablazat-felirat",   "name": "14 - Ábra/Táblázat felirat" },
+    "14-AbbildungTabellenbez": { "id": "14-Abra-felirat",            "name": "14 - Ábra felirat" },
     "15-Abbildung":            { "id": "15-Abra",                    "name": "15 - Ábra" },
     "16-Tabellentitel":        { "id": "16-Tablazatcim",             "name": "16 - Táblázatcím" },
     "18-Tabellentext":         { "id": "18-Tablazatszoveg",          "name": "18 - Táblázatszöveg" },
@@ -56,6 +56,13 @@
       "keepNext": true,
       "spacing": { "before": 480, "line": 260, "lineRule": "atLeast" },
       "_note": "Designer signature block on the closing page. keepNext holds the name, qualification and chamber number together across a page break."
+    },
+    {
+      "id": "17-Tablazat-felirat",
+      "name": "17 - Táblázat felirat",
+      "basedOn": "14-Abra-felirat",
+      "next": "11-Szoveg",
+      "_note": "Table captions need their own counter, so they cannot share the figure style. Placed BELOW the table, per the review."
     },
     {
       "id": "49-Nyilatkozat",
@@ -103,14 +110,25 @@
 
     "15-Abra": {
       "keepNext": true,
-      "next": "14-Abra-Tablazat-felirat",
+      "next": "14-Abra-felirat",
       "_why": "keepNext holds the picture on the same page as its caption. next means pressing Enter after a picture lands you in the caption style - WG's next is body text, which is why every caption there is a manual style pick."
     },
 
     "Caption": {
-      "match": "14-Abra-Tablazat-felirat",
+      "match": "14-Abra-felirat",
       "_why": "Word's own Insert > Caption applies the built-in Caption style. Retuning it to match the office caption means that route gives the office look instead of stock Word blue. The built-in NAME cannot be changed - Word identifies it by the canonical English 'caption' - but its formatting can."
     }
+  },
+
+  "add_numbering": {
+    "_note": "Style-linked automatic caption numbering. A w:pStyle back-link inside the numbering level means that simply APPLYING the style numbers the paragraph - no Insert > Caption dialog, no per-document setup. Hungarian convention puts the number first: '1. ábra:', not 'Ábra 1'.",
+    "14-Abra-felirat":      { "numId": 90, "abstractNumId": 90, "lvlText": "%1. ábra:" },
+    "17-Tablazat-felirat":  { "numId": 91, "abstractNumId": 91, "lvlText": "%1. táblázat:" }
+  },
+
+  "numbering_text": {
+    "_note": "lvlText values carried over from WG that contain German words. 'Anhang %1' prefixes every appendix heading with the German for annex. Stripped to a bare number so the style works in any language - the heading text itself says what it is.",
+    "Anhang %1": "%1"
   },
 
   "global": {

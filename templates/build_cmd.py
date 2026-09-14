@@ -88,6 +88,37 @@ def gen_content_types(parts, as_template, template_ct, document_ct):
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def gen_custom_props(config, layout_name, master_dir, part_paths, docprops):
+    """docProps/custom.xml: the MEDTPL provenance marker plus the project data
+    that DOCPROPERTY fields read.
+
+    Values repeated across cover, nyilatkozat and footer live here once. Edit
+    them in Word via File > Info > Properties > Advanced, then Ctrl+A / F9 to
+    refresh every instance.
+    """
+    master_hash = hashlib.sha256(
+        b"".join((master_dir / p).read_bytes() for p in part_paths(master_dir))
+    ).hexdigest()[:16]
+    marker = "medtpl %s; layout=%s; master=%s; built=%s" % (
+        config["tool_version"], layout_name, master_hash,
+        datetime.date.today().isoformat())
+
+    ns = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+    vt = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
+    props = [(config["provenance"]["property"], marker)]
+    props += sorted(docprops.items())
+
+    lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+             '<Properties xmlns="%s" xmlns:vt="%s">' % (ns, vt)]
+    for i, (name, val) in enumerate(props, start=2):
+        safe = (str(val).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+        lines.append('  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" '
+                     'pid="%d" name="%s"><vt:lpwstr>%s</vt:lpwstr></property>'
+                     % (i, name, safe))
+    lines.append("</Properties>")
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
 def gen_provenance(config, layout_name, master_dir, part_paths):
     """The MEDTPL marker - parallel to medstd.py's GENERATED_MARKER.
 
@@ -175,14 +206,23 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
             ctx, with_logo=bool(logo), right_text=layout.get("header_right", ""))
         if header_rels:
             parts["word/_rels/header1.xml.rels"] = header_rels
-        parts["word/footer1.xml"] = render.render_footer(
-            ctx, left_text=layout.get("footer_left", ""))
+        if layout.get("footer_lines"):
+            parts["word/footer1.xml"] = render.render_footer_lines(
+                ctx, layout["footer_lines"])
+        else:
+            parts["word/footer1.xml"] = render.render_footer(
+                ctx, left_text=layout.get("footer_left", ""))
 
     parts["word/_rels/document.xml.rels"] = gen_rels(rels)
     parts["[Content_Types].xml"] = gen_content_types(
         parts.keys(), as_template, medtpl.TEMPLATE_CT, medtpl.DOCUMENT_CT)
-    parts["docProps/custom.xml"] = gen_provenance(
-        config, name, master, medtpl.part_paths)
+    docprops = {}
+    for key, spec in (layout.get("docprops") or {}).items():
+        if key.startswith("_"):
+            continue
+        docprops[key] = render.substitute(str(spec), ctx)
+    parts["docProps/custom.xml"] = gen_custom_props(
+        config, name, master, medtpl.part_paths, docprops)
 
     write_package(parts, out, medtpl.FIRST_ENTRY, medtpl.FIXED_DATE)
     return out, len(parts), len(kept), as_template

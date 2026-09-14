@@ -1429,7 +1429,7 @@
       <w:start w:val="1"/>
       <w:numFmt w:val="decimal"/>
       <w:pStyle w:val="27-Melleklet"/>
-      <w:lvlText w:val="Anhang %1"/>
+      <w:lvlText w:val="%1"/>
       <w:lvlJc w:val="left"/>
       <w:pPr>
         <w:ind w:left="1154" w:hanging="360"/>
@@ -3003,6 +3003,32 @@
       </w:rPr>
     </w:lvl>
   </w:abstractNum>
+  <w:abstractNum w:abstractNumId="90">
+    <w:multiLevelType w:val="singleLevel"/>
+    <w:lvl w:ilvl="0">
+      <w:start w:val="1"/>
+      <w:numFmt w:val="decimal"/>
+      <w:pStyle w:val="14-Abra-felirat"/>
+      <w:lvlText w:val="%1. ábra:"/>
+      <w:lvlJc w:val="left"/>
+      <w:pPr>
+        <w:ind w:left="0" w:firstLine="0"/>
+      </w:pPr>
+    </w:lvl>
+  </w:abstractNum>
+  <w:abstractNum w:abstractNumId="91">
+    <w:multiLevelType w:val="singleLevel"/>
+    <w:lvl w:ilvl="0">
+      <w:start w:val="1"/>
+      <w:numFmt w:val="decimal"/>
+      <w:pStyle w:val="17-Tablazat-felirat"/>
+      <w:lvlText w:val="%1. táblázat:"/>
+      <w:lvlJc w:val="left"/>
+      <w:pPr>
+        <w:ind w:left="0" w:firstLine="0"/>
+      </w:pPr>
+    </w:lvl>
+  </w:abstractNum>
   <w:num w:numId="1" w16cid:durableId="85687142">
     <w:abstractNumId w:val="0"/>
   </w:num>
@@ -3140,5 +3166,11 @@
   </w:num>
   <w:num w:numId="36" w16cid:durableId="719205561">
     <w:abstractNumId w:val="24"/>
+  </w:num>
+  <w:num w:numId="90">
+    <w:abstractNumId w:val="90"/>
+  </w:num>
+  <w:num w:numId="91">
+    <w:abstractNumId w:val="91"/>
   </w:num>
 </w:numbering>

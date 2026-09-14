@@ -55,6 +55,17 @@ def field(instr, placeholder=""):
     )
 
 
+def docprop(name):
+    """A DOCPROPERTY field.
+
+    Reads a custom document property, so a value that appears in several places
+    - project address on the cover, in the nyilatkozat and in the footer - is
+    stored once and updated from File > Info > Properties > Advanced. Ctrl+A
+    then F9 refreshes every instance.
+    """
+    return field(' DOCPROPERTY "%s" \* MERGEFORMAT ' % name, name)
+
+
 def para(style=None, content="", extra=""):
     ppr = ""
     if style:
@@ -168,10 +179,23 @@ class Ctx(dict):
         return self._id
 
 
+TOKEN_RE = None
+
+
 def substitute(text, ctx):
+    """Fill {{TOKEN}} values; anything left over becomes a visible placeholder.
+
+    A template built with no project attached would otherwise ship literal
+    {{ADDRESS}} text. Turning the leftovers into <cim> makes it obvious they are
+    blanks to fill, and keeps them findable with Word's search.
+    """
+    global TOKEN_RE
+    if TOKEN_RE is None:
+        import re as _re
+        TOKEN_RE = _re.compile(r"\{\{([A-Z_]+)\}\}")
     for key, val in ctx.get("tokens", {}).items():
         text = text.replace("{{%s}}" % key, str(val))
-    return text
+    return TOKEN_RE.sub(lambda m: "<%s>" % m.group(1).lower(), text)
 
 
 def render_block(block, ctx):
@@ -185,6 +209,11 @@ def render_block(block, ctx):
                     picture(ctx["logo_rel"], block.get("width_cm", 8),
                             block.get("height_cm", 8), block.get("name", "Kep"),
                             ctx.next_id()))
+    if "docprop" in block:
+        label = block.get("label", "")
+        content = (run(label) if label else "") + docprop(block["docprop"])
+        extra = '<w:tabs><w:tab w:val="left" w:pos="3402"/></w:tabs>' if label else ""
+        return para(block.get("style"), content, extra)
     if "field" in block:
         return para(block.get("style"), field(block["field"], block.get("placeholder", "")))
     if "empty" in block:
@@ -238,6 +267,30 @@ def render_header(ctx, with_logo=True, right_text=""):
     if right_text:
         content += run("\t" + substitute(right_text, ctx))
     return (DECL + "<w:hdr %s>%s</w:hdr>\n" % (NS, para("Header", content))).encode("utf-8")
+
+
+def render_footer_lines(ctx, lines, page_numbers=True):
+    """Footer built from a list of blocks, so it can carry DOCPROPERTY fields.
+
+    The review asked for the original document's footer convention - project
+    description and site address on every page. Those same values appear on the
+    cover and in the nyilatkozat, which is exactly the case for fields: one
+    edit updates all of them.
+    """
+    out = []
+    for spec in lines:
+        content = ""
+        for piece in spec.get("parts", []):
+            if "docprop" in piece:
+                content += docprop(piece["docprop"])
+            else:
+                content += run(substitute(piece.get("text", ""), ctx))
+        out.append(para(spec.get("style", "Footer"), content,
+                        '<w:jc w:val="%s"/>' % spec.get("align", "center")))
+    if page_numbers:
+        content = field(" PAGE ", "1") + run(" / ") + field(" SECTIONPAGES ", "1")
+        out.append(para("Footer", content, '<w:jc w:val="right"/>'))
+    return (DECL + "<w:ftr %s>%s</w:ftr>\n" % (NS, "".join(out))).encode("utf-8")
 
 
 def render_footer(ctx, left_text=""):
