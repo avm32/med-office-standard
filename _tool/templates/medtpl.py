@@ -30,7 +30,7 @@ from xml.etree import ElementTree as ET
 HERE = Path(__file__).resolve().parent
 CONFIG_FILE = HERE / "templates.json"
 MASTER = HERE / "master"
-BUILD = HERE / "build"
+BUILD = HERE.parent.parent / "02-Sablonok"   # where a person looks for them
 
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 PR = "{http://schemas.openxmlformats.org/package/2006/relationships}"

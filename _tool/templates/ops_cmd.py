@@ -197,7 +197,7 @@ def cmd_docs(args, config, medtpl):
     rows.sort()
 
     page = config["page"]
-    out = medtpl.HERE.parent / "docs" / "MED-SABLON-REFERENCIA.md"
+    out = medtpl.HERE.parent.parent / "01-Segedletek" / "Word_sablonok.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         "# MED Word sablon — referencia",
@@ -298,6 +298,12 @@ def parse_project_md(path):
 # suit the project. These map the labels actually seen onto the tokens the
 # layout uses, so the file stays natural to write.
 FACT_ALIASES = {
+    "SEISMIC": "SEISMIC",
+    "STOREY_ARRANGEMENT": "BUILDING_CHARACTER",
+    "SZINTEK": "BUILDING_CHARACTER",
+    "ÉPÜLET_JELLEMZŐI": "BUILDING_CHARACTER",
+    "BUILDING_TYPE": "BUILDING_TYPE",
+    "ÉPÍTÉSI_TEVÉKENYSÉG": "BUILDING_TYPE",
     "HELYRAJZI_SZÁM": "HRSZ",
     "HELYRAJZI_SZAM": "HRSZ",
     "HRSZ.": "HRSZ",
@@ -352,6 +358,15 @@ def cmd_new(args, config, medtpl):
         "PLACE": args.place or "Budapest",
         "DATE_HU": "%d. %s %d." % (today.year, hu_months[today.month - 1], today.day),
         "REVISION": args.revision or "S3-P01",
+        "BUILDING_TYPE": facts.get("BUILDING_TYPE", "TBC"),
+        "BUILDING_TYPE_LOWER": facts.get("BUILDING_TYPE", "TBC").lower(),
+        "BUILDING_CHARACTER": facts.get("BUILDING_CHARACTER", "TBC"),
+        # Seismic basis: stated in the muleiras because DCL vs DCM decides
+        # whether ductile detailing rules apply at all.
+        "AGR": facts.get("AGR", "TBC"),
+        "GROUND_TYPE": facts.get("GROUND_TYPE", "TBC"),
+        "DUCTILITY_CLASS": facts.get("DUCTILITY_CLASS", "TBC"),
+        "Q_FACTOR": facts.get("Q_FACTOR", "TBC"),
         "DESIGNER_INITIALS": "".join(w[0] for w in
             (args.designer or facts.get("DESIGNER", "")).split() if w)[:3].upper() or "—",
         "VERSION": config["tool_version"],

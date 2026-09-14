@@ -21,8 +21,8 @@
     "MED_Kepesites": "okleveles építészmérnök, tartószerkezeti vezető tervező",
     "MED_KamaraiSzam": "{{CHAMBER_NUMBER}}",
     "MED_TervezoLakcim": "{{PRACTICE_ADDRESS}}",
-    "MED_Epitesi_tevekenyseg": "Családi lakóépület építése",
-    "MED_Epulet_jellemzoi": "P+F+2",
+    "MED_Epitesi_tevekenyseg": "{{BUILDING_TYPE}}",
+    "MED_Epulet_jellemzoi": "{{BUILDING_CHARACTER}}",
     "MED_Munkaresz": "Építési engedélyezési terv tartószerkezeti fejezete",
     "MED_Datum": "{{PLACE}}, {{DATE_HU}}"
   },
@@ -43,7 +43,7 @@
         { "empty": 2 },
         { "style": "42-Megbizas-neve", "docprop": "MED_Cim" },
         { "style": "43-Cim", "text": "hrsz.: {{HRSZ}}" },
-        { "style": "43-Cim", "text": "sz. alatt építendő családi lakóépület" },
+        { "style": "43-Cim", "text": "sz. alatt építendő {{BUILDING_TYPE_LOWER}}" },
         { "style": "43-Cim", "text": "építési engedélyezési tervéhez készített" },
         { "empty": 1 },
         { "style": "45-Dokumentum-cime", "text": "TARTÓSZERKEZETI" },
@@ -234,6 +234,49 @@
 
         { "style": "23-Cimsor3-szam-nelkul", "text": "Támfalak, munkagödör" },
         { "style": "11-Szoveg", "text": "KITÖLTENDŐ: földmegtámasztás, munkagödör-határolás. Ha nincs, a fejezet törlendő." },
+
+
+        { "style": "22-Cimsor2", "text": "Szeizmikus tervezés" },
+        { "style": "11-Szoveg", "text": "A szeizmikus méretezés az MSZ EN 1998-1 és a magyar nemzeti melléklet szerint történt. A felvett alapadatok:" },
+        { "table": {
+            "header": ["Paraméter", "Felvett érték", "Hivatkozás"],
+            "rows": [
+              ["Referencia talajgyorsulás, agR", "{{AGR}}", "MSZ EN 1998-1 NA, zónatérkép"],
+              ["Talajosztály", "{{GROUND_TYPE}}", "talajmechanikai szakvélemény"],
+              ["Jelentőségi osztály", "II (γI = 1,0)", "MSZ EN 1998-1, 4.2.5"],
+              ["Duktilitási osztály", "{{DUCTILITY_CLASS}}", "MSZ EN 1998-1, 5.2.1"],
+              ["Viselkedési tényező, q", "{{Q_FACTOR}}", "MSZ EN 1998-1, 5.2.2"],
+              ["Számítási módszer", "módusanalízis válaszspektrummal", "MSZ EN 1998-1, 4.3.3.3"]
+            ],
+            "widths": [3400, 2600, 3071]
+          }
+        },
+        { "style": "17-Tablazat-felirat", "text": "Szeizmikus tervezési alapadatok" },
+        { "style": "11-Szoveg", "text": "KITÖLTENDŐ: az épület szabályossága alaprajzban és magasság mentén (MSZ EN 1998-1, 4.2.3). A szabályosság dönti el a számítási módszer választhatóságát és a viselkedési tényező esetleges csökkentését — ezt minden esetben ki kell mondani, nem elég hallgatólagosan feltételezni." },
+        { "style": "13-Megjegyzes", "text": "DCL (alacsony duktilitás, q ≤ 1,5) választása esetén az MSZ EN 1998-1 duktilis kialakítási (DCM) szabályai NEM alkalmazandók, a vasalás az MSZ EN 1992-1-1 szerint készül. Ezt a döntést a leírásban rögzíteni kell, mert a vasalási tervek egész kialakítását meghatározza." },
+        { "style": "13-Megjegyzes", "text": "ELLENŐRIZNI: földszinti garázsszint esetén a lágy szint (soft storey) kockázata — ha a földszinten lényegesen kevesebb merevítő fal van, mint felette, az alaprajzi/magassági szabálytalanságot és a merevítés felülvizsgálatát vonja maga után." },
+
+        { "style": "22-Cimsor2", "text": "Tűzvédelem" },
+        { "style": "11-Szoveg", "text": "A tűzállósági követelményeket az OTSZ (54/2014. (XII. 5.) BM rendelet) alapján a tűzvédelmi tervező határozza meg az épület kockázati osztálya és a tűzszakaszolás függvényében. A tartószerkezeti tervezés feladata az így előírt tűzállósági határértékek biztosítása; az alábbi táblázat a tartószerkezeti oldalról vállalt értékeket rögzíti." },
+        { "table": {
+            "header": ["Szerkezeti elem", "Tűzállósági követelmény", "Megjegyzés / megoldás"],
+            "rows": [
+              ["Vasbeton lemezalap", "—", "talajjal érintkező, követelmény nélkül"],
+              ["Pince teherhordó falak", "REI 90", "monolit vasbeton, betonfedéssel biztosítva"],
+              ["Felszín feletti teherhordó falak", "REI 90", "monolit vasbeton"],
+              ["Vasbeton pillérek", "R 90", "betonfedés az MSZ EN 1992-1-2 szerint"],
+              ["Vasbeton födémek", "REI 90", "betonfedés az MSZ EN 1992-1-2 szerint"],
+              ["Lépcsőház határoló falai", "REI 90", "kiürítési útvonal határoló szerkezete"],
+              ["Tűzszakaszhatároló szerkezetek", "EI 90", "garázs / lakószint elválasztás"],
+              ["Acélszerkezetek", "R 30", "tűzvédő bevonat vagy burkolat szükséges"],
+              ["Vázkitöltő falazat", "EI 90", "gyártói teljesítménynyilatkozat szerint"]
+            ],
+            "widths": [3200, 2400, 3471]
+          }
+        },
+        { "style": "17-Tablazat-felirat", "text": "Tartószerkezeti elemek tűzállósági követelményei" },
+        { "style": "13-Megjegyzes", "text": "KITÖLTENDŐ: a táblázat értékei jellemző középmagas lakóépületre vonatkozó tájékoztató értékek. A ténylegesen előírt értékeket a tűzvédelmi dokumentációból kell átvenni, és az itt nem szereplő vagy nem alkalmazandó sorokat törölni." },
+        { "style": "13-Megjegyzes", "text": "FIGYELEM: a vasbeton elemek tűzállóságát az MSZ EN 1992-1-2 táblázatos módszere a betonfedés (tengelytávolság) útján biztosítja. A tűzvédelmi tengelytávolság igénye meghaladhatja a tartósságból adódó betonfedést — ilyenkor a nagyobb érték a mértékadó. A 3.2 pontban megadott betonfedéseket ezzel össze kell vetni." },
 
         { "style": "22-Cimsor2", "text": "Összefoglalás" },
         { "style": "11-Szoveg", "text": "Az ábrázolt tartószerkezetekkel az épület állékonysága biztosított, a szerkezet a vonatkozó szabványok szerinti követelményeknek megfelel." },

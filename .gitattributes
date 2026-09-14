@@ -10,4 +10,4 @@
 *.svg   text eol=lf
 
 # The exploded master is the reviewable artifact - keep it diffable.
-templates/master/**  text eol=lf
+_tool/templates/master/**  text eol=lf

@@ -10,7 +10,7 @@
 
   "notes": {
     "_note": "Project knowledge notes live in the Obsidian vault, NOT in the project folder. Bulk project data (models, drawings, incoming) stays wherever projects_root points - Documents today, a server later. Only these few hundred KB of markdown live in the vault, which is what lets a single Obsidian query span every project and the knowledge base at once. When projects move to the server, projects_root changes and this does not.",
-    "root": "../../03-Resources-Wiki/_KNOWLEDGE/Projects",
+    "root": "../../../03-Resources-Wiki/_KNOWLEDGE/Projects",
     "link_name": "00-Notes",
     "_link_note": "Best-effort directory junction created inside the project folder pointing at that project's notes, so the agent (and you) can reach them without leaving the project. Junctions need a local target and no elevation; if creation fails the tool says so and CLAUDE.md still carries the absolute path.",
     "files": ["PROJECT.md", "DECISIONS.md", "ASSUMPTIONS.md", "RFI.md", "REGISTER.csv"],

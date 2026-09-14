@@ -84,7 +84,7 @@ when something is settled. Edit the command at
 `seeds/dotclaude/commands/decision.md`, not in a project.
 
 To migrate a project that has already started, see
-[`docs/MIGRATION.md`](docs/MIGRATION.md).
+[`01-Segedletek/Projekt_migracio.md`](01-Segedletek/Projekt_migracio.md).
 
 The technical knowledge base stays central at `03-Resources-Wiki/` — it is not
 copied per project.

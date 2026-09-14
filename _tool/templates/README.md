@@ -24,7 +24,7 @@ python medtpl.py check                  # 11 structural checks, exit 1 on failur
 python medtpl.py roundtrip              # assert pack -> unpack is byte-identical
 python medtpl.py build                  # build every layout
 python medtpl.py build stiluskatalogus  # just one
-python medtpl.py docs                   # regenerate docs/MED-SABLON-REFERENCIA.md
+python medtpl.py docs                   # regenerate 01-Segedletek/Word_sablonok.md
 python medtpl.py unpack <file.docx> --yes   # capture Word edits back into master/
 python medtpl.py restyle <file.docx>    # push a style fix into an existing document
 python medtpl.py slim <file.docx>       # report / drop unreferenced media

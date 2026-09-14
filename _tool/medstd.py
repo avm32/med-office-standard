@@ -464,7 +464,7 @@ def render_tree_block(std, lang):
 
 
 def cmd_docs(args, std):
-    out = HERE / "docs" / "OFFICE-STANDARD.md"
+    out = HERE.parent / "01-Segedletek" / "Mappaszerkezet.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     blocks = ["# %s - Office Standard\n" % std["practice"],
               "> Generated from `standard.json` by `medstd.py docs`. Do not edit by hand -",
