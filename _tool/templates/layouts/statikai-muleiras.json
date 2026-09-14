@@ -65,7 +65,7 @@
     {
       "_note": "Revision record. Kept on its own page after the cover so the issue history is the first thing a reviewer sees, and so it survives being read as a PDF where the file name may be lost.",
       "content": [
-        { "style": "21-Cimsor1", "text": "Változáskövetés" },
+        { "style": "50-Szamozatlan-cimsor", "text": "VÁLTOZÁSKÖVETÉS" },
         { "table": {
             "header": ["Rev.", "Dátum", "Leírás", "Készítette", "Ellenőrizte"],
             "rows": [
@@ -83,7 +83,7 @@
     {
       "_note": "Tartalomjegyzék. Field result deliberately left empty - a stale rendered TOC is the trap the WG reference warns about. F9 in Word populates it.",
       "content": [
-        { "style": "50-Tartalomjegyzek", "text": "TARTALOMJEGYZÉK" },
+        { "style": "50-Szamozatlan-cimsor", "text": "TARTALOMJEGYZÉK" },
         { "field": " TOC \\o \"1-3\" \\h \\z \\u ", "style": "11-Szoveg",
           "placeholder": "A tartalomjegyzék frissítéséhez: kattintson ide, majd F9." }
       ]

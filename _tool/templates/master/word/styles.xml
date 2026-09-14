@@ -970,8 +970,8 @@
       <w:lang w:eastAsia="hu-HU" w:val="hu-HU"/>
     </w:rPr>
   </w:style>
-  <w:style w:type="paragraph" w:customStyle="1" w:styleId="50-Tartalomjegyzek">
-    <w:name w:val="50 - Tartalomjegyzék"/>
+  <w:style w:type="paragraph" w:customStyle="1" w:styleId="50-Szamozatlan-cimsor">
+    <w:name w:val="50 - Számozatlan címsor"/>
     <w:basedOn w:val="10-Alap"/>
     <w:qFormat/>
     <w:rsid w:val="00652C44"/>
@@ -1261,7 +1261,7 @@
   </w:style>
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="27-Melleklet">
     <w:name w:val="27 - Melléklet"/>
-    <w:basedOn w:val="50-Tartalomjegyzek"/>
+    <w:basedOn w:val="50-Szamozatlan-cimsor"/>
     <w:next w:val="11-Szoveg"/>
     <w:qFormat/>
     <w:rsid w:val="004522CF"/>

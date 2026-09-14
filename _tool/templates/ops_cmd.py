@@ -329,6 +329,31 @@ def apply_aliases(facts):
     return facts
 
 
+LAYOUT_DESCRIPTIONS = {
+    "statikai-muleiras": "Engedelyezesi_terv_statikai_muleiras",
+}
+
+# Where each layout files itself inside the project. The design stage lives in
+# the folder because the container ID has no field for it.
+LAYOUT_SUBFOLDER = {
+    "statikai-muleiras": "01-Engedelyezesi_terv",
+}
+
+
+def layout_description(layout):
+    return LAYOUT_DESCRIPTIONS.get(layout, "")
+
+
+def slugify_desc(text):
+    """ASCII, underscore-separated. The description is human help, not an
+    identifier - it must never contain a hyphen, which is the field delimiter."""
+    import unicodedata
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    text = re.sub(r"[^A-Za-z0-9]+", "_", text)
+    return re.sub(r"_+", "_", text).strip("_")
+
+
 def cmd_new(args, config, medtpl):
     """Start a real document in a project folder, named per the container ID."""
     project = Path(args.project)
@@ -375,8 +400,20 @@ def cmd_new(args, config, medtpl):
 
     # Container ID per the office standard: Project-Originator-Functional-
     # Spatial-Form-Discipline-Number, with status and revision suffixed.
-    name = "%s-MED-ZZ-ZZ-T-S-0001-%s.docx" % (tokens["PROJECT_CODE"], tokens["REVISION"])
-    dest_dir = project / args.into
+    #
+    # ISO 19650 has NO design-stage field, deliberately - stage is a property of
+    # the issue, not of the document. So the stage shows up two other ways:
+    #   1. the folder it lives in (01-Engedelyezesi_terv)
+    #   2. an optional description suffix after the ID, which is what BS 1192
+    #      allowed via an underscore and what survives a file being emailed out
+    #      of its folder.
+    # The ID itself stays fixed-field and parseable either way.
+    base = "%s-MED-ZZ-ZZ-T-S-0001-%s" % (tokens["PROJECT_CODE"], tokens["REVISION"])
+    desc = args.description if args.description is not None else layout_description(args.layout)
+    name = base + (("_" + slugify_desc(desc)) if desc else "") + ".docx"
+    sub = LAYOUT_SUBFOLDER.get(args.layout, "")
+    dest_dir = project / args.into / sub if sub else project / args.into
+    dest_dir.mkdir(parents=True, exist_ok=True)
     if not dest_dir.is_dir():
         sys.exit("error: destination folder does not exist: %s\n"
                  "  (pass --into with the right folder for this project's language)" % dest_dir)

@@ -31,7 +31,7 @@
     "45-Dokumententitel":      { "id": "45-Dokumentum-cime",         "name": "45 - Dokumentum címe" },
     "46-Dokunummer":           { "id": "46-Dokumentumszam",          "name": "46 - Dokumentumszám" },
     "47-Datum":                { "id": "47-Datum",                   "name": "47 - Dátum" },
-    "50-Inhalt":               { "id": "50-Tartalomjegyzek",         "name": "50 - Tartalomjegyzék" },
+    "50-Inhalt":               { "id": "50-Szamozatlan-cimsor",     "name": "50 - Számozatlan címsor" },
     "52-InfoTitelblatt":       { "id": "52-Cimlap-info",             "name": "52 - Címlap info" }
   },
 
@@ -103,7 +103,7 @@
     "Heading8": { "semiHidden": true, "unhideWhenUsed": true },
     "Heading9": { "semiHidden": true, "unhideWhenUsed": true },
 
-    "50-Tartalomjegyzek": {
+    "50-Szamozatlan-cimsor": {
       "spacing": { "after": 360 },
       "_why": "was after=3000, same problem"
     },
