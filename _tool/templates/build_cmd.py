@@ -43,6 +43,35 @@ BASE_RELS = [
 ]
 
 
+def image_size(data):
+    """Pixel size of a PNG or JPEG, from the bytes. Stdlib only.
+
+    Needed so an embedded image keeps its aspect ratio: a signature squeezed
+    into a fixed box looks forged, and nobody wants that on a permit document.
+    """
+    PNG_MAGIC = bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+    JPEG_MAGIC = bytes([0xFF, 0xD8])
+    if data[:8] == PNG_MAGIC:
+        # IHDR is the first chunk; width and height are big-endian uint32
+        w = int.from_bytes(data[16:20], "big")
+        h = int.from_bytes(data[20:24], "big")
+        return w, h
+    if data[:2] == JPEG_MAGIC:
+        i = 2
+        while i < len(data) - 9:
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                          0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                h = int.from_bytes(data[i + 5:i + 7], "big")
+                w = int.from_bytes(data[i + 7:i + 9], "big")
+                return w, h
+            i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+    return None
+
+
 def gen_rels(rels):
     lines = ['<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
              '<Relationships xmlns="%s">' % PR_NS]
@@ -232,10 +261,18 @@ def build_layout(name, config, medtpl, tokens=None, out_override=None,
     if sig_name:
         sig = here / "assets" / sig_name
         if sig.is_file():
+            data = sig.read_bytes()
             media = "word/media/medtpl-signature" + sig.suffix.lower()
-            parts[media] = sig.read_bytes()
+            parts[media] = data
             ctx["signature_rel"] = "rId30"
             rels.append(("rId30", "image", media.split("word/", 1)[1]))
+            # Height follows from the real pixel aspect, so any signature
+            # dropped in assets/ renders undistorted.
+            width_cm = float(layout.get("signature_w_cm", 4.5))
+            size = image_size(data)
+            ctx["signature_w_cm"] = width_cm
+            ctx["signature_h_cm"] = (round(width_cm * size[1] / size[0], 2)
+                                     if size and size[0] else 1.6)
 
     if kept:
         parts.update(kept)
